@@ -1,0 +1,81 @@
+---
+- name: Install requirements
+  ansible.builtin.package:
+    name:
+      - curl
+      - jq
+      - xclip
+      - git
+    state: latest
+  become: true
+
+- name: Get latest tag
+  uri:
+    url: https://api.github.com/repos/neovim/neovim/tags
+    return_content: true
+  register: tags_lit
+
+- name: Get latest release
+  uri:
+    url: https://api.github.com/repos/neovim/neovim/releases/tags/{{ tags_lit.json[0].name }}
+    return_content: true
+  register: release
+
+- name: Extract latest release URL
+  set_fact: 
+    neovim_dl_url: "{{ release.json | community.general.json_query('assets[?name==`nvim-linux64.deb`].browser_download_url') | join('') }}"
+
+- name: Download latest release deb package
+  get_url: 
+    url: "{{ neovim_dl_url }}"
+    dest: /tmp/nvim-linux64.deb
+
+- name: Install deb package
+  apt:
+    deb: /tmp/nvim-linux64.deb
+  become: true
+
+- name: Remove deb package
+  file:
+    path: /tmp/nvim-linux64.deb
+    state: absent
+  become: true
+
+- name: Create nvim directory
+  file:
+    path: "{{ ansible_user_dir }}/.config/nvim"
+    state: directory
+
+- name: Copy init file
+  copy:
+    dest: "{{ ansible_user_dir }}/.config/nvim/init.vim"
+    src: "init.vim"
+
+- name: Copy configuration directory
+  copy:
+    dest: "{{ ansible_user_dir }}/.config/nvim/lua"
+    src: "lua/"
+
+- name: Create vim-plug dir
+  file:
+    path: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload"
+    state: directory
+
+- name: Install vim-plug
+  get_url:
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    dest: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload/plug.vim"
+
+- name: Install pynvim
+  pip:
+    name: pynvim
+
+- name: Install neovim node modules
+  shell: |
+    npm i --location=global neovim
+  become: true
+
+- name: Install LSP node modules
+  shell: |
+    npm i --location=global bash-language-server
+  become: true

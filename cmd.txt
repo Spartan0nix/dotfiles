@@ -1,0 +1,4 @@
+ansible localhost -a "cat /etc/os-release"
+ansible localhost -m ping
+
+ansible-playbook main.yml --ask-become-pass

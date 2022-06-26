@@ -1,0 +1,48 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - curl
+      - zsh
+      - git
+      - zplug
+    state: latest
+  become: true
+
+- name: Install python requirements
+  command: pip3 install pexpect
+  become: true
+
+- name: Create NerdFont directory
+  file:
+    path: "{{ ansible_user_dir }}/.local/share/fonts"
+    state: directory
+
+- name: Install NerdFont 'Caskaydia Cove Regular'
+  get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/CascadiaCode/Regular/complete/Caskaydia%20Cove%20Regular%20Nerd%20Font%20Complete.otf"
+    dest: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
+
+- name: Download install script
+  get_url:
+    url: https://starship.rs/install.sh
+    dest: /tmp/starship_install.sh
+
+- name: Execute starship install script
+  expect:
+    command: sh /tmp/starship_install.sh
+    echo: true
+    responses:
+      '\[y/N\]': 'y'
+      '\[sudo\] password for leo:': '{{ root_password }}'
+
+- name: Remove starship install script
+  file: 
+    path: /tmp/starship_install.sh
+    state: absent
+  become: true
+
+- name: Copy ZSH user configuration
+  copy:
+    dest: "{{ ansible_user_dir }}/.zshrc"
+    src: .zshrc

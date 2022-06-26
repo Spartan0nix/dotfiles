@@ -1,0 +1,23 @@
+---
+- name: Remove old Go install
+  file: 
+    path: /usr/local/go
+    state: absent
+  become: true
+
+- name: Unarchive Go binairies
+  unarchive:
+    src: https://go.dev/dl/go1.18.3.linux-amd64.tar.gz
+    dest: /usr/local
+    remote_src: true
+  become: true
+
+- name: Add Go to user PATH
+  shell: |
+    echo "export PATH=\$PATH:/usr/local/go/bin" >> {{ ansible_user_dir }}/.bashrc
+    echo "export PATH=\$PATH:/usr/local/go/bin" >> {{ ansible_user_dir }}/.zshrc
+
+- name: Install Gopls
+  shell: |
+    export PATH=\$PATH:/usr/local/go/bin 
+    go install golang.org/x/tools/gopls@latest

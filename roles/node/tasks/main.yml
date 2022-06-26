@@ -1,0 +1,22 @@
+---
+- name: Download install script
+  get_url:
+    url: https://deb.nodesource.com/setup_lts.x
+    dest: /tmp/setup_lts.sh
+
+- name: Execute install script
+  command: bash /tmp/setup_lts.sh
+  become: true
+
+- name: Remove install script
+  file:
+    path: "/tmp/setup_lts.sh"
+    state: absent
+  become: true
+
+- name: Install nodejs
+  ansible.builtin.package:
+    name:
+      - nodejs
+    state: latest
+  become: true

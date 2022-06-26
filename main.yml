@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+
+  # vars_prompt:
+  # - name: root_password
+  #   prompt: Enter root password
+  #   private: yes
+  #   confirm: yes
+
+  roles:
+    # - zsh
+    - go
+    - python
+    - node
+    - neovim
+    
