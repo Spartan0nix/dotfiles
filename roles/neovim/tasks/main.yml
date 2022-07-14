@@ -69,6 +69,7 @@
 - name: Install pynvim
   pip:
     name: pynvim
+  become: true
 
 - name: Install neovim node modules
   shell: |

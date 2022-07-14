@@ -9,4 +9,4 @@ sudo apt update && sudo apt upgrade -y
 # Install ansible
 sudo apt install ansible -y
 
-ansible-playbook main.yml --ask-become-pass
+ansible-playbook main.yml --ask-become-pass -vvv
