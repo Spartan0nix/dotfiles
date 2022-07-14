@@ -9,7 +9,4 @@ sudo apt update && sudo apt upgrade -y
 # Install ansible
 sudo apt install ansible -y
 
-# Upgrade pip3
-# sudo -H pip3 install --upgrade pip
-
-# ansible-playbook main.yml --ask-become-pass
+ansible-playbook main.yml --ask-become-pass

@@ -1,4 +1,11 @@
 ---
+- name: Install requirements
+  package:
+    name:
+      - jq
+    state: latest
+  become: true
+
 - name: Download install script
   get_url:
     url: https://deb.nodesource.com/setup_lts.x
@@ -15,8 +22,21 @@
   become: true
 
 - name: Install nodejs
-  ansible.builtin.package:
+  package:
     name:
       - nodejs
     state: latest
+  become: true
+
+- name: Retrieve npm config
+  command: npm config list --json
+  register: npm_config
+
+- name: Setting ca_file fact
+  set_fact: 
+    ca_file: "{{ (npm_config.stdout|from_json).cafile }}"
+
+- name: Setting custom CA certificate on global config
+  command: npm config set --location=global cafile {{ ca_file }}
+  when: ca_file != ""
   become: true

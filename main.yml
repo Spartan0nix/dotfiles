@@ -1,14 +1,14 @@
 ---
 - hosts: localhost
 
-  # vars_prompt:
-  # - name: root_password
-  #   prompt: Enter root password
-  #   private: yes
-  #   confirm: yes
+  vars_prompt:
+  - name: root_password
+    prompt: Enter root password
+    private: yes
+    confirm: yes
 
   roles:
-    # - zsh
+    - zsh
     - go
     - python
     - node
