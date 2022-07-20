@@ -109,12 +109,13 @@ class WslInterface {
     [WslCommandResult]runProcess([System.Diagnostics.Process]$ps) {
             # Run the process
             [void]$ps.Start() 
-            # Wait for an exit signal
-            $ps.WaitForExit()
             
             # Retrieve stdout and stderr
             $out = $ps.StandardOutput.ReadToEnd()
             $err = $ps.StandardError.ReadToEnd()
+
+            # Wait for an exit signal
+            $ps.WaitForExit()
 
             # Close the process
             $ps.Close()
