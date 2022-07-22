@@ -109,11 +109,11 @@ class WslInterface {
     [WslCommandResult]runProcess([System.Diagnostics.Process]$ps) {
             # Run the process
             [void]$ps.Start() 
-            
+
             # Retrieve stdout and stderr
             $out = $ps.StandardOutput.ReadToEnd()
             $err = $ps.StandardError.ReadToEnd()
-
+            
             # Wait for an exit signal
             $ps.WaitForExit()
 
@@ -381,4 +381,18 @@ cert = /usr/local/share/ca-certificates/${CA_FILE_NAME}/${CA_FILE_NAME}.crt
     Remove-Item -Path "./npmrc"
 }
 
-main
+function test() {
+    $wsl = [WslInterface]::new()
+    $wsl.Distro = "Debian"
+
+    $res = $wsl.CopyLocal("test.sh", "/tmp", $true, $false)
+    $res.CheckForError()
+
+    $res = $wsl.Exec("/bin/bash /tmp/test.sh", $false)
+    $res.CheckForError()
+    Write-Host $res.Output
+}
+
+# main
+
+test
