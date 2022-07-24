@@ -1,0 +1,5 @@
+---
+- name: Set PATH
+  shell: |
+    echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib" >> {{ ansible_user_dir }}/.bashrc
+    echo "\neval \$(export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib)" >> {{ ansible_user_dir }}/.zshrc
