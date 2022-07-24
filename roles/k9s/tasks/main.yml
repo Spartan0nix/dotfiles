@@ -1,0 +1,16 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - curl
+    state: latest
+  become: true
+
+- name: Install
+  shell: |
+    curl -sS https://webinstall.dev/k9s | bash
+
+- name: Add k9s to user PATH
+  shell: |
+    echo "export PATH=\$PATH:\$HOME/.local/bin" >> {{ ansible_user_dir }}/.bashrc
+    echo "\neval \$(export PATH=\$PATH:\$HOME/.local/bin)" >> {{ ansible_user_dir }}/.zshrc
