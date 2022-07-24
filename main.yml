@@ -6,9 +6,6 @@
     prompt: Enter root password
     private: yes
     confirm: yes
-  - name: k9s_file
-    prompt: "Enter the path were your kubernetes context are stored on your system (Exemple : ~/.kube)"
-    private: yes
 
   roles:
     - zsh
