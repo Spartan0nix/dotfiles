@@ -2,30 +2,22 @@
 - name: Install requirements
   package:
     name:
-      - curl
-      - jq
       - xclip
       - git
     state: latest
   become: true
 
-- name: Get latest tag
-  uri:
-    url: https://api.github.com/repos/neovim/neovim/tags
-    return_content: true
-  register: tags_lit
-
 - name: Get latest release
   uri:
-    url: https://api.github.com/repos/neovim/neovim/releases/tags/{{ tags_lit.json[0].name }}
+    url: https://api.github.com/repos/neovim/neovim/releases/latest
     return_content: true
   register: release
 
-- name: Extract latest release URL
+- name: Get download URL
   set_fact: 
     neovim_dl_url: "{{ release.json | community.general.json_query('assets[?name==`nvim-linux64.deb`].browser_download_url') | join('') }}"
 
-- name: Download latest release deb package
+- name: Download deb package
   get_url: 
     url: "{{ neovim_dl_url }}"
     dest: /tmp/nvim-linux64.deb
