@@ -9,10 +9,20 @@
     state: latest
   become: true
 
-- name: Install python requirements
-  pip: 
-    name: pexpect
+- name: Set ZSH as default shell
+  user:
+    name: "{{ ansible_env['USER'] }}"
+    shell: /usr/bin/zsh
   become: true
+
+- name: Download Oh-my-zsh install script
+  get_url:
+    url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/ohmyzsh_install.sh
+
+- name: Execute Oh-my-zsh install script
+  shell: sh /tmp/ohmyzsh_install.sh
+  become_user: "{{ ansible_env['USER'] }}"  
 
 - name: Create NerdFont directory
   file:
@@ -28,4 +38,3 @@
   copy:
     dest: "{{ ansible_user_dir }}/.zshrc"
     src: .zshrc
-  
