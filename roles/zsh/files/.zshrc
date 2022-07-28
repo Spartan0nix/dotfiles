@@ -45,8 +45,6 @@ zplug "zsh-users/zsh-autosuggestions"
 zplug "zsh-users/zsh-history-substring-search"
 zplug "zsh-users/zsh-completions"
 zplug "junegunn/fzf"
-# Theme
-eval "$(starship init zsh)"
 
 # zplug - install/load new plugins when zsh is started or reloaded
 if ! zplug check --verbose; then
@@ -61,5 +59,5 @@ zplug load --verbose
 # Clear the PATH if running WSL
 # ZSH performance can decrease a lot due to heavy number of entries in the PATH
 if [[ -d /mnt/wsl ]]; then
-        export PATH=/usr/share/zplug/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/Léo/AppData/Local/Programs/Microsoft\ VS\ Code/bin
 fi
