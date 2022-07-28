@@ -3,5 +3,5 @@
   shell: |
     NEW_PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"
     [[ -d /mnt/wsl ]]; NEW_PATH="$NEW_PATH:/mnt/c/Users/Léo/AppData/Local/Programs/Microsoft\\ VS\\ Code/bin" || echo
-    echo "export PATH=$NEW_PATH" >> {{ ansible_user_dir }}/.bashrc
+    echo "\nexport PATH=$NEW_PATH" >> {{ ansible_user_dir }}/.bashrc
     echo "\neval \$(export PATH=$NEW_PATH)" >> {{ ansible_user_dir }}/.zshrc
