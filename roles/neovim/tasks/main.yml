@@ -64,11 +64,13 @@
   become: true
 
 - name: Install neovim node modules
-  shell: |
-    npm i --location=global neovim
+  npm:
+    name: neovim
+    global: yes
   become: true
 
 - name: Install LSP node modules
-  shell: |
-    npm i --location=global bash-language-server
+  npm:
+    name: bash-language-server
+    global: yes
   become: true
