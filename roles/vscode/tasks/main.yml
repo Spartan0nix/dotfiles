@@ -6,7 +6,7 @@
       - gpg
     state: latest
   become: true
-  # when: lookup('env', 'WSL_DISTRO_NAME') == ""
+  when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
 - name: Add APT repo
   shell: |
@@ -15,13 +15,13 @@
     chown root:root /etc/apt/trusted.gpg.d/packages.microsoft.gpg
     echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list
   become: true
-  # when: lookup('env', 'WSL_DISTRO_NAME') == ""
+  when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
 - name: Update package
   apt:
     update_cache: yes
   become: true
-  # when: lookup('env', 'WSL_DISTRO_NAME') == ""
+  when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
 - name: Install VScode binairies
   package:
@@ -29,4 +29,4 @@
       - code 
     state: latest
   become: true
-  # when: lookup('env', 'WSL_DISTRO_NAME') == ""
+  when: lookup('env', 'WSL_DISTRO_NAME') == ""
