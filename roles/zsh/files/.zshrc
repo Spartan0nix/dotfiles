@@ -1,30 +1,16 @@
 # ~/.zshrc file for zsh interactive shells.
 # see /usr/share/doc/zsh/examples/zshrc for examples
 
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+
+export ZSH_THEME="robbyrussell"
+
 # Disable all beep/bell sounds
 unsetopt BEEP
 
-setopt interactivecomments # allow comments in interactive mode
-setopt numericglobsort
-setopt promptsubst
-
 # hide EOL sign ('%')
 PROMPT_EOL_MARK=""
-
-# Keybindings configurations
-bindkey -e                                        # emacs key bindings
-
-# Completion configurations
-autoload -Uz compinit
-compinit -d ~/.cache/zcompdump
-zstyle ':completion:*' menu select
-zstyle ':completion:*' completer _expand _complete
-zstyle ':completion:*' group-name ''
-zstyle ':completion:*' list-colors ''
-zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
-zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
-zstyle ':completion:*' use-compctl false
-zstyle ':completion:*' verbose true
 
 # History configurations
 HISTFILE=~/.zsh_history
@@ -35,26 +21,23 @@ setopt hist_ignore_dups       # ignore duplicated commands history list
 setopt hist_ignore_space      # ignore commands that start with space
 setopt hist_verify            # show command with history expansion to user before running it
 
-# zplug - manage plugins
-source /usr/share/zplug/init.zsh
-zplug "plugins/git", from:oh-my-zsh
-zplug "plugins/sudo", from:oh-my-zsh
-zplug "plugins/command-not-found", from:oh-my-zsh
-zplug "zsh-users/zsh-syntax-highlighting"
-zplug "zsh-users/zsh-autosuggestions"
-zplug "zsh-users/zsh-history-substring-search"
-zplug "zsh-users/zsh-completions"
-zplug "junegunn/fzf"
+# Which plugins would you like to load?
+# Standard plugins can be found in $ZSH/plugins/
+# Custom plugins may be added to $ZSH_CUSTOM/plugins/
+# Example format: plugins=(rails git textmate ruby lighthouse)
+# Add wisely, as too many plugins slow down shell startup.
+plugins=(
+    git
+    sudo
+    command-not-found
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+    zsh-history-substring-search
+    zsh-completions
+)
 
-# zplug - install/load new plugins when zsh is started or reloaded
-if ! zplug check --verbose; then
-    printf "Install? [y/N]: "
-    if read -q; then
-        echo; zplug install
-    fi
-fi
 
-zplug load --verbose
+source $ZSH/oh-my-zsh.sh
 
 # Clear the PATH if running WSL
 # ZSH performance can decrease a lot due to heavy number of entries in the PATH
