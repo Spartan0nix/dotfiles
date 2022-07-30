@@ -13,4 +13,4 @@ sudo apt install ansible -y
 ansible-galaxy collection install community.general
 
 # Run ansible playbook
-ansible-playbook main.yml --ask-become-pass -vvv
+ansible-playbook main.yml --ask-become-pass
