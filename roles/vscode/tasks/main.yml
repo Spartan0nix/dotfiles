@@ -33,7 +33,5 @@
 
 - name: Install extensions
   shell: |
-    code --install-extension redhat.ansible
-    code --install-extension akamud.vscode-theme-onedark
-    code --install-extension alexdima.copy-relative-path
-    code --install-extension golang.go
+    code --install-extension "{{ item }}"
+  loop: "{{ vscode_extensions }}"

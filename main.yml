@@ -1,9 +1,17 @@
 ---
 - hosts: localhost
+  vars:
+    vscode_extensions:
+      - redhat.ansible
+      - akamud.vscode-theme-onedark
+      - alexdima.copy-relative-path
+      - golang.go
 
   roles:
     - system
     - zsh
     - neovim
     - k9s
+    - vscode-server
+    - vscode
     
