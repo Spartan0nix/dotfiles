@@ -13,4 +13,4 @@
 - name: Add k9s to user PATH
   shell: |
     echo "export PATH=\$PATH:\$HOME/.local/bin" >> {{ ansible_user_dir }}/.bashrc
-    echo "\neval \$(export PATH=\$PATH:\$HOME/.local/bin)" >> {{ ansible_user_dir }}/.zshrc
+    echo "\nexport PATH=\$PATH:\$HOME/.local/bin" >> {{ ansible_user_dir }}/.zshrc
