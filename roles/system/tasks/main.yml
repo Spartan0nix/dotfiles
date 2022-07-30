@@ -1,4 +1,13 @@
 ---
+- name: Install requirements
+  package:
+    name:
+      - git
+      - jq
+      - curl
+    state: latest
+  become: true
+
 - name: Set PATH
   shell: |
     NEW_PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"
