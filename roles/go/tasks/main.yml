@@ -45,7 +45,7 @@
 
 - name: Add Go to user PATH
   shell: |
-    echo "export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> {{ ansible_user_dir }}/.bashrc
+    echo "\nexport PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> {{ ansible_user_dir }}/.bashrc
     echo "\nexport PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> {{ ansible_user_dir }}/.zshrc
   when: trigger_go_install is defined
 

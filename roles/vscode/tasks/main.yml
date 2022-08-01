@@ -31,6 +31,12 @@
   become: true
   when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
+- name: Add vscode bin to PATH if running WSL
+  shell: |
+    echo "\nexport PATH=\$PATH:{{ vscode_path.stdout }}" >> {{ ansible_user_dir }}/.bashrc
+    echo "\nexport PATH=\$PATH:{{ vscode_path.stdout }}" >> {{ ansible_user_dir }}/.zshrc
+  when: (lookup('env', 'WSL_DISTRO_NAME') != "") and (vscode_path.stdout != "")
+
 - name: Install extensions
   shell: |
     code --install-extension "{{ item }}"

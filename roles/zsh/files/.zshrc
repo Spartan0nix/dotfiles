@@ -41,6 +41,4 @@ source $ZSH/oh-my-zsh.sh
 
 # Clear the PATH if running WSL
 # ZSH performance can decrease a lot due to heavy number of entries in the PATH
-if [[ -d /mnt/wsl ]]; then
-    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Users/Léo/AppData/Local/Programs/Microsoft\ VS\ Code/bin
-fi
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib
