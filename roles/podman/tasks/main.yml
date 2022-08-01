@@ -1,0 +1,50 @@
+---
+- name: Install package
+  package:
+    name:
+      - podman
+    state: latest
+  become: true
+
+- name: Set $XDG_RUNTIME_DIR variable for WSL
+  shell: |
+    cat <<EOF >> ~/.bashrc
+    
+    if [[ -z "\$XDG_RUNTIME_DIR" ]]; then
+      export XDG_RUNTIME_DIR=/run/user/\$UID
+      if [[ ! -d "\$XDG_RUNTIME_DIR" ]]; then
+        export XDG_RUNTIME_DIR=/tmp/\$USER-runtime
+        if [[ ! -d "\$XDG_RUNTIME_DIR" ]]; then
+          mkdir -m 0700 "\$XDG_RUNTIME_DIR"
+        fi
+      fi
+    fi
+    EOF
+
+    cat <<EOF >> ~/.zshrc
+
+    if [[ -z "\$XDG_RUNTIME_DIR" ]]; then
+      export XDG_RUNTIME_DIR=/run/user/\$UID
+      if [[ ! -d "\$XDG_RUNTIME_DIR" ]]; then
+        export XDG_RUNTIME_DIR=/tmp/\$USER-runtime
+        if [[ ! -d "\$XDG_RUNTIME_DIR" ]]; then
+          mkdir -m 0700 "\$XDG_RUNTIME_DIR"
+        fi
+      fi
+    fi
+    EOF
+  when: lookup('env', 'WSL_DISTRO_NAME') != ""
+
+- name: Copy default containers.conf
+  copy:
+    src: /usr/share/containers/containers.conf
+    dest: /etc/containers/containers.conf
+  become: true
+
+- name: Update /etc/containers/containers.conf for WSL
+  shell: |
+    sed -i '/cgroup_manager/c\cgroup_manager = "cgroupfs"' /etc/containers/containers.conf
+    sed -i '/events_logger/c\events_logger = "file"' /etc/containers/containers.conf
+    sed -i '/log_driver/c\log_driver = "k8s-file"' /etc/containers/containers.conf
+  become: true
+  when: lookup('env', 'WSL_DISTRO_NAME') != ""
