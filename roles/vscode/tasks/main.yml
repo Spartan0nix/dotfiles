@@ -17,7 +17,7 @@
   become: true
   when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
-- name: Update package
+- name: Update package repositories
   apt:
     update_cache: yes
   become: true
