@@ -220,17 +220,17 @@ foreach(`$entry in `$entries) {
 
     # Update the apt repositories
     [WslCommandResult]UpdatePackageSourceList() {
-        return $this.Exec("apt-get update", $true)
+        return $this.Exec("export DEBIAN_FRONTEND=noninteractive``; apt-get update", $true)
     }
     
     # Upgrade the system
     [WslCommandResult]UpgradeSystem() {
-        return $this.Exec("apt-get upgrade -y", $true)
+        return $this.Exec("export DEBIAN_FRONTEND=noninteractive``; apt-get upgrade -y", $true)
     }
     
     # Install packages with apt
     [WslCommandResult]InstallPackage([string[]]$packages) {
-        return $this.Exec("apt-get install -y ${packages}", $true)
+        return $this.Exec("export DEBIAN_FRONTEND=noninteractive``; apt-get install -y ${packages}", $true)
     }
 }
 
