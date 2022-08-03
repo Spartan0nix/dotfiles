@@ -1,0 +1,10 @@
+---
+- name: Build ansible library path
+  shell: |
+    CURRENT_PATH=$(pwd)
+    echo "$CURRENT_PATH/library"
+  register: ansible_library
+
+- name: Set fact for ANSIBLE_LIBRARY
+  set_fact:
+    ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
