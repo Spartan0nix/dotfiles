@@ -7,19 +7,16 @@
     state: latest
   become: true
 
-- name: Get latest release
-  uri:
-    url: https://api.github.com/repos/neovim/neovim/releases/latest
-    return_content: true
-  register: release
-
 - name: Get download URL
-  set_fact: 
-    neovim_dl_url: "{{ release.json | community.general.json_query('assets[?name==`nvim-linux64.deb`].browser_download_url') | join('') }}"
+  github_release:
+    repo_name: neovim
+    repo_owner: neovim
+    asset_name: nvim-linux64.deb
+  register: neovim_release
 
 - name: Download deb package
   get_url: 
-    url: "{{ neovim_dl_url }}"
+    url: "{{ neovim_release.url }}"
     dest: /tmp/nvim-linux64.deb
 
 - name: Install deb package
