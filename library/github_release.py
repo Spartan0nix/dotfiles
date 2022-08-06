@@ -112,7 +112,7 @@ def run_module():
     release_assets = latest_request['assets']
     for asset in release_assets:
         # Search for the desired asset
-        if asset['name'] == module.params['asset_name']:
+        if (asset['name'].__contains__(module.params['asset_name'])):
             result['url'] = asset['browser_download_url']
             result['found'] = True
             break
