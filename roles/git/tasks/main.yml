@@ -1,0 +1,38 @@
+---
+- name: Install packages
+  package:
+    name:
+      - git
+    state: latest
+  become: true
+
+- name: Config user.email
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: "{{ git_email }}"
+  no_log: true
+
+- name: Config user.name
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: "{{ git_username }}"
+  no_log: true
+
+- name: Create user ssh folder
+  file:
+    path: "{{ ansible_user_dir }}/.ssh"
+    state: directory
+
+- name: Generate ssh key
+  community.crypto.openssh_keypair:
+    path: "{{ ansible_user_dir }}/.ssh/id_github"
+    type: ed25519
+    comment: "{{ git_email }}"
+
+- name: Adding ssh key to the ssh agent
+  shell: |
+    eval "$(ssh-agent -s)"
+    ssh-add "{{ ansible_user_dir }}"/.ssh/id_github
+    
