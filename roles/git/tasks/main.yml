@@ -27,12 +27,27 @@
 
 - name: Generate ssh key
   community.crypto.openssh_keypair:
-    path: "{{ ansible_user_dir }}/.ssh/id_github"
+    path: "{{ ansible_user_dir }}/.ssh/id_git"
     type: ed25519
     comment: "{{ git_email }}"
 
-- name: Adding ssh key to the ssh agent
-  shell: |
-    eval "$(ssh-agent -s)"
-    ssh-add "{{ ansible_user_dir }}"/.ssh/id_github
-    
+- name: Create ssh config file
+  file:
+    path: "{{ ansible_user_dir }}/.ssh/config"
+    state: touch
+
+- name: Add default ssh config (example, github, gitlab)
+  blockinfile:
+    path: "{{ ansible_user_dir }}/.ssh/config"
+    block: |
+      # Host example.com
+          # PreferredAuthentications publickey
+          # IdentityFile ~/.ssh/id_rsa
+
+      Host github.com
+          PreferredAuthentications publickey
+          IdentityFile ~/.ssh/id_git
+
+      Host gitlab.com
+          PreferredAuthentications publickey
+          IdentityFile ~/.ssh/id_git
