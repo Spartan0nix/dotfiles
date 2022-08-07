@@ -6,6 +6,9 @@
       - akamud.vscode-theme-onedark
       - alexdima.copy-relative-path
       - golang.go
+      - pkief.material-icon-theme
+      - mhutchie.git-graph
+      - jebbs.plantuml
 
   roles:
     - pre
