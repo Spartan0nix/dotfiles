@@ -19,3 +19,21 @@
     NEW_PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"
     echo "\nexport PATH=$NEW_PATH" >> {{ ansible_user_dir }}/.bashrc
     echo "\nexport PATH=$NEW_PATH" >> {{ ansible_user_dir }}/.zshrc
+
+- name: Add function to convert Windows Path
+  blockinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    block: |
+      # Convert a Windows PATH to a linux PATH before executin 'cd'
+      function cdw() {
+          if [ $# -eq 1 ]; then
+              converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
+              cd_target="/mnt/${converted_path}"
+              cd $cd_target
+          else
+              echo "Missing required Windows path"
+          fi
+          unset converted_path
+          unset cd_target
+      }
+  when: lookup('env', 'WSL_DISTRO_NAME') != ""
