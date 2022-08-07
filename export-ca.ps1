@@ -175,7 +175,6 @@ foreach(`$entry in `$entries) {
             $out = $this.runProcess($ps)
 
             $out.CheckForError()
-            $out.CheckForError()
     
             $rows = $out.Output.Split("`n")
             foreach ($row in $rows) {
@@ -327,9 +326,9 @@ function main() {
     $res.Print()
 
     # Upgrade system
-    # $res = $wsl.UpgradeSystem()
-    # $res.CheckForError()
-    # $res.Print()
+    $res = $wsl.UpgradeSystem()
+    $res.CheckForError()
+    $res.Print()
     
     # Install ca-certificates packages and load custom AC
     $res = $wsl.InstallPackage(@("ca-certificates", "openssl"))
@@ -381,18 +380,4 @@ cert = /usr/local/share/ca-certificates/${CA_FILE_NAME}/${CA_FILE_NAME}.crt
     Remove-Item -Path "./npmrc"
 }
 
-function test() {
-    $wsl = [WslInterface]::new()
-    $wsl.Distro = "Debian"
-
-    $res = $wsl.CopyLocal("test.sh", "/tmp", $true, $false)
-    $res.CheckForError()
-
-    $res = $wsl.Exec("/bin/bash /tmp/test.sh", $false)
-    $res.CheckForError()
-    Write-Host $res.Output
-}
-
-# main
-
-test
+main
