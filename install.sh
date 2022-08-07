@@ -12,5 +12,16 @@ sudo apt install ansible -y
 # Update community general module
 ansible-galaxy collection install community.general
 
-# Run ansible playbook
-ansible-playbook main.yml --ask-become-pass
+# Check if the ansible vault exist
+if [ ! -f vault.yml  ]; then
+    sh scripts/vault.sh
+fi
+
+VAULT_PASSWORD_PATH=$HOME/.config/dotfiles/vault_password.txt
+if [ -f $VAULT_PASSWORD_PATH ]; then
+    # Run ansible playbook
+    ansible-playbook main.yml --ask-become-pass --vault-password-file $VAULT_PASSWORD_PATH -e "@vault.yml"
+else
+    # Run ansible playbook
+    ansible-playbook main.yml --ask-become-pass --ask-vault-password -e "@vault.yml"
+fi
