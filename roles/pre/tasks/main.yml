@@ -8,3 +8,14 @@
 - name: Set fact for ANSIBLE_LIBRARY
   set_fact:
     ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
+
+- name: Extract VS Code PATH
+  shell: |
+    echo $PATH | tr ':' '\n' | grep "Microsoft VS Code" | sed 's/ /\\ /g'
+  register: vscode_path
+  when: lookup('env', 'WSL_DISTRO_NAME') != ""
+
+- name: Set fact for VSCODE_PATH
+  set_fact:
+    VSCODE_PATH: "{{ vscode_path.stdout }}"
+  when: lookup('env', 'WSL_DISTRO_NAME') != ""

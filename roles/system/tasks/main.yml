@@ -8,12 +8,6 @@
     state: latest
   become: true
 
-- name: Extract VS Code PATH
-  shell: |
-    echo $PATH | tr ':' '\n' | grep "Microsoft VS Code" | sed 's/ /\\ /g'
-  register: vscode_path
-  when: lookup('env', 'WSL_DISTRO_NAME') != ""
-
 - name: Set PATH
   shell: |
     NEW_PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"
