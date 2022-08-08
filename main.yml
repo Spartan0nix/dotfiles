@@ -9,6 +9,7 @@
       - pkief.material-icon-theme
       - mhutchie.git-graph
       - jebbs.plantuml
+      - hashicorp.terraform
 
   roles:
     - pre
