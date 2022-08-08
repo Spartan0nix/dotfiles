@@ -1,43 +1,14 @@
 ---
-- name: Install requirements
-  package:
-    name:
-      - wget 
-      - gpg
-    state: latest
-  become: true
-  when: lookup('env', 'WSL_DISTRO_NAME') == ""
+# when: lookup('env', 'WSL_DISTRO_NAME') == ""
 
-- name: Add APT repo
-  shell: |
-    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/packages.microsoft.gpg
-    chmod 644 /etc/apt/trusted.gpg.d/packages.microsoft.gpg
-    chown root:root /etc/apt/trusted.gpg.d/packages.microsoft.gpg
-    echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list
-  become: true
-  args:
-    warn: false
-  when: lookup('env', 'WSL_DISTRO_NAME') == ""
-
-- name: Update package repositories
-  apt:
-    update_cache: yes
-  become: true
-  when: lookup('env', 'WSL_DISTRO_NAME') == ""
-
-- name: Install VScode binairies
-  package:
-    name:
-      - code 
-    state: latest
-  become: true
-  when: lookup('env', 'WSL_DISTRO_NAME') == ""
+- include: setup_debian.yml
+  when: (CURRENT_DISTRO == "Debian") and (lookup('env', 'WSL_DISTRO_NAME') == "")
 
 - name: Add vscode bin to PATH if running WSL
   shell: |
-    echo "\nexport PATH=\$PATH:{{ vscode_path.stdout }}" >> {{ ansible_user_dir }}/.bashrc
-    echo "\nexport PATH=\$PATH:{{ vscode_path.stdout }}" >> {{ ansible_user_dir }}/.zshrc
-  when: (lookup('env', 'WSL_DISTRO_NAME') != "") and (vscode_path.stdout != "")
+    echo "\nexport PATH=\$PATH:{{ WSL_VSCODE_PATH }}" >> {{ ansible_user_dir }}/.bashrc
+    echo "\nexport PATH=\$PATH:{{ WSL_VSCODE_PATH }}" >> {{ ansible_user_dir }}/.zshrc
+  when: WSL_VSCODE_PATH is defined
 
 - name: Install extensions
   shell: |

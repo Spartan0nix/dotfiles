@@ -1,0 +1,30 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - wget 
+      - gpg
+    state: latest
+  become: true
+
+- name: Add APT repo
+  shell: |
+    wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/packages.microsoft.gpg
+    chmod 644 /etc/apt/trusted.gpg.d/packages.microsoft.gpg
+    chown root:root /etc/apt/trusted.gpg.d/packages.microsoft.gpg
+    echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list
+  become: true
+  args:
+    warn: false
+
+- name: Update package repositories
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install VScode binairies
+  package:
+    name:
+      - code 
+    state: latest
+  become: true
