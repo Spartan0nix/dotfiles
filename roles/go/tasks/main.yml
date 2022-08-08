@@ -9,48 +9,29 @@
 - name: Checking for previous Go install
   stat:
     path: /usr/local/go
-  register: old_install
-
-- name: Ask for overwrite
-  pause:
-    prompt: "Go is already install on the system. Would you like to install overwrite ? (Y|N)"
-  when: old_install.stat.exists
-  register: overwrite
-
-- name: Triggering Go install based on param so far
-  set_fact:
-    trigger_go_install: true
-  when: (not old_install.stat.exists) or ((overwrite.user_input == "Y") or (overwrite.user_input == "y"))
-
-- name: Remove old Go install
-  file: 
-    path: /usr/local/go
-    state: absent
-  when: trigger_go_install is defined
-  become: true
+  register: go_install
 
 - name: Get latest tag
   shell: |
     git ls-remote --tags https://github.com/golang/go.git | grep -E '\bgo1\b\.[0-9]{2,}\.[0-9]{1,2}' | cut --delimiter="/" --fields=3 | sort -n | tail -1
   register: go_tag
-  when: trigger_go_install is defined
+  when: not go_install.stat.exists
 
 - name: Unarchive Go binairies
   unarchive:
     src: "https://go.dev/dl/{{ go_tag.stdout }}.linux-amd64.tar.gz"
     dest: /usr/local
     remote_src: true
-  when: trigger_go_install is defined
+  when: not go_install.stat.exists
   become: true
 
-- name: Add Go to user PATH
-  shell: |
-    echo "\nexport PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> {{ ansible_user_dir }}/.bashrc
-    echo "\nexport PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin" >> {{ ansible_user_dir }}/.zshrc
-  when: trigger_go_install is defined
+- name: Sef fact GO_PATH
+  set_fact: 
+    GO_PATH: "/usr/local/go/bin:\\$HOME/go/bin"
+  when: not go_install.stat.exists
 
 - name: Install Gopls
   shell: |
-    export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin
+    export PATH=\$PATH:"{{ GO_PATH }}"
     go install golang.org/x/tools/gopls@latest
-  when: trigger_go_install is defined
+  when: not go_install.stat.exists
