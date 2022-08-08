@@ -25,11 +25,22 @@
     path: "{{ ansible_user_dir }}/.ssh"
     state: directory
 
+- name: Check if a ssh keys pair already exist
+  stat:
+    path: "{{ ansible_user_dir }}/.ssh/id_git"
+  register: ssh_keys
+
 - name: Generate ssh key
   community.crypto.openssh_keypair:
     path: "{{ ansible_user_dir }}/.ssh/id_git"
     type: ed25519
     comment: "{{ git_email }}"
+  when: not ssh_keys.stat.exists
+
+- name: Set fact SSH_KEY_NOT_CHANGED
+  set_fact:
+    SSH_KEY_NOT_CHANGED: true
+  when: ssh_keys.stat.exists
 
 - name: Create ssh config file
   file:
