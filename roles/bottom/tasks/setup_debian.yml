@@ -1,0 +1,22 @@
+---
+- name: Get deb package URL
+  github_release:
+    repo_name: bottom
+    repo_owner: ClementTsang
+    asset_name: amd64.deb
+  register: bottom_dl_url
+
+- name: Download source
+  unarchive:
+    src: "{{ bottom_dl_url.url }}"
+    dest: /tmp/bottom_amd64.deb
+  
+- name: Install deb package
+  apt:
+    deb: /tmp/bottom_amd64.deb
+  become: true
+
+- name: Remove source
+  file:
+    path: /tmp/bottom_amd64.deb
+    state: absent
