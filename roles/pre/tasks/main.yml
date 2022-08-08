@@ -9,5 +9,15 @@
   set_fact:
     ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
 
+- name: Get current Distro
+  shell: |
+    distro=$(lsb_release -si)
+    echo $distro
+  register: current_distro
+
+- name: Set fact for CURRENT_DISTRO
+  set_fact:
+    CURRENT_DISTRO: "{{ current_distro.stdout }}"
+
 - include: setup_wsl.yml
   when: lookup('env', 'WSL_DISTRO_NAME') != ""
