@@ -20,6 +20,12 @@
     value: "{{ git_username }}"
   no_log: true
 
+- name: Config pull.rebase
+  community.general.git_config:
+    name: pull.rebase
+    scope: global
+    value: false
+
 - name: Create user ssh folder
   file:
     path: "{{ ansible_user_dir }}/.ssh"
