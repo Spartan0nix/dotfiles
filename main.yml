@@ -11,9 +11,12 @@
       - jebbs.plantuml
       - hashicorp.terraform
 
+  pre_tasks:
+    - include: pre/main.yml
+
   roles:
-    - pre
     - system
+    - go
     - git
     - zsh
     - neovim
@@ -23,4 +26,3 @@
     - podman
     - terraform
     - bottom
-    
