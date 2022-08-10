@@ -25,13 +25,16 @@
   when: not go_install.stat.exists
   become: true
 
-- name: Sef fact GO_PATH
-  set_fact: 
-    GO_PATH: "/usr/local/go/bin:\\$HOME/go/bin"
+- name: Add Go path
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^export PATH=$PATH'
+    regexp: '^PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
+    line: 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
   when: not go_install.stat.exists
 
 - name: Install Gopls
   shell: |
-    export PATH=\$PATH:"{{ GO_PATH }}"
+    export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin
     go install golang.org/x/tools/gopls@latest
   when: not go_install.stat.exists
