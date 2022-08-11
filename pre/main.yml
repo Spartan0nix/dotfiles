@@ -1,13 +1,12 @@
 ---
-- name: Build ansible library path
-  shell: |
-    CURRENT_PATH=$(pwd)
-    echo "$CURRENT_PATH/library"
-  register: ansible_library
-
-- name: Set fact for ANSIBLE_LIBRARY
-  set_fact:
-    ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
+- name: Install default packages
+  package:
+    name:
+      - git
+      - jq
+      - curl
+    state: latest
+  become: true
 
 - name: Get current Distro
   shell: |
@@ -15,27 +14,21 @@
     echo $distro
   register: current_distro
 
-- name: Set fact for CURRENT_DISTRO
+- name: Set CURRENT_DISTRO fact
   set_fact:
     CURRENT_DISTRO: "{{ current_distro.stdout }}"
 
-- name: Create .path file
-  file:
-    path: "{{ ansible_user_dir }}/.path"
-    state: touch
-
-- name: Include .path file in bashrc
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    regexp: '^source ~/.path'
-    line: 'source ~/.path'
-
-- name: Include .path file in zshrc
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.zshrc"
-    regexp: '^source ~/.path'
-    line: 'source ~/.path'
-    create: yes
-
 - include: setup_wsl.yml
   when: lookup('env', 'WSL_DISTRO_NAME') != ""
+
+- name: Build ansible library path
+  shell: |
+    CURRENT_PATH=$(pwd)
+    echo "$CURRENT_PATH/library"
+  register: ansible_library
+
+- name: Set ANSIBLE_LIBRARY fact
+  set_fact:
+    ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
+
+- include: setup_path.yml

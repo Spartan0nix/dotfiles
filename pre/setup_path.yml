@@ -1,4 +1,15 @@
 ---
+- name: Create .path file
+  file:
+    path: "{{ ansible_user_dir }}/.path"
+    state: touch
+
+- name: Update default PATH
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"'
+    line: 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"'
+
 - name: Include .path file in bashrc
   lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
@@ -27,21 +38,3 @@
     insertbefore: '^source ~/.path'
     line: "\n# Source file containing path update"
   when: zshrc_update.changed
-    
-# - name: Add function to convert Windows Path
-#   blockinfile:
-#     path: "{{ ansible_user_dir }}/.bashrc"
-#     block: |
-#       # Convert a Windows PATH to a linux PATH before executin 'cd'
-#       function cdw() {
-#           if [ $# -eq 1 ]; then
-#               converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
-#               cd_target="/mnt/${converted_path}"
-#               cd $cd_target
-#           else
-#               echo "Missing required Windows path"
-#           fi
-#           unset converted_path
-#           unset cd_target
-#       }
-#   when: lookup('env', 'WSL_DISTRO_NAME') != ""

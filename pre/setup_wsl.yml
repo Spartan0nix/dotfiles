@@ -2,7 +2,9 @@
   shell: |
     echo $PATH | tr ':' '\n' | grep "Microsoft VS Code" | sed 's/ /\\ /g'
   register: wsl_vscode_path
+  when: WSL_VSCODE_PATH is not defined
 
 - name: Set fact for VSCODE_PATH
   set_fact:
     WSL_VSCODE_PATH: "{{ wsl_vscode_path.stdout }}"
+  when: WSL_VSCODE_PATH is not defined
