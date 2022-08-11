@@ -28,10 +28,17 @@
 - name: Add Go path
   lineinfile:
     path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^export PATH=$PATH'
-    regexp: '^PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
+    regexp: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
     line: 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
   when: not go_install.stat.exists
+  register: go_path
+
+- name: Add Go path documentation
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
+    line: "\n# Add Go binairies to PATH"
+  when: go_path.changed
 
 - name: Install Gopls
   shell: |
