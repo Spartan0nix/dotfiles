@@ -8,15 +8,19 @@
     state: latest
   become: true
 
-- name: Get current Distro
-  shell: |
-    distro=$(lsb_release -si)
-    echo $distro
-  register: current_distro
+- name: Get Distro facts
+  ansible.builtin.setup:
+    gather_subset:
+      - 'architecture'
+      - 'distribution'
+      - 'distribution_major_version'
+      - 'distribution_release'
+      - 'distribution_version'
+  register: distro_facts
 
 - name: Set CURRENT_DISTRO fact
   set_fact:
-    CURRENT_DISTRO: "{{ current_distro.stdout }}"
+    CURRENT_DISTRO: "{{ distro_facts.ansible_facts.ansible_distribution }}"
 
 - include: setup_wsl.yml
   when: lookup('env', 'WSL_DISTRO_NAME') != ""
