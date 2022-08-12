@@ -1,0 +1,23 @@
+---
+- name: Get download URL
+  github_release:
+    repo_name: neovim
+    repo_owner: neovim
+    asset_name: nvim-linux64.deb
+  register: neovim_release
+
+- name: Download deb package
+  get_url: 
+    url: "{{ neovim_release.url }}"
+    dest: /tmp/nvim-linux64.deb
+
+- name: Install deb package
+  apt:
+    deb: /tmp/nvim-linux64.deb
+  become: true
+
+- name: Remove deb package
+  file:
+    path: /tmp/nvim-linux64.deb
+    state: absent
+  become: true
