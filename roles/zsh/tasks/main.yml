@@ -14,51 +14,72 @@
     shell: /usr/bin/zsh
   become: true
 
+- name: Check previous Oh-my-zsh install
+  stat:
+    path: "{{ ansible_user_dir }}/.oh-my-zsh"
+  register: oh_my_zsh_install
+
 - name: Download Oh-my-zsh install script
   get_url:
     url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: /tmp/ohmyzsh_install.sh
+  when: not oh_my_zsh_install.stat.exists
 
 - name: Execute Oh-my-zsh install script
   shell: sh /tmp/ohmyzsh_install.sh
   become_user: "{{ ansible_env['USER'] }}"  
+  when: not oh_my_zsh_install.stat.exists
 
 - name: Remove Oh-my-zsh install script
   file:
     path: /tmp/ohmyzsh_install.sh
     state: absent
+  when: not oh_my_zsh_install.stat.exists
+
+- name: Check previous NerdFont install
+  stat:
+    path: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
+  register: nerd_font_install
 
 - name: Create NerdFont directory
   file:
     path: "{{ ansible_user_dir }}/.local/share/fonts"
     state: directory
+  when: not nerd_font_install.stat.exists
 
 - name: Install NerdFont 'Caskaydia Cove Regular'
   get_url:
     url: "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/CascadiaCode/Regular/complete/Caskaydia%20Cove%20Regular%20Nerd%20Font%20Complete.otf"
     dest: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
+  when: not nerd_font_install.stat.exists
+
+- name: Check previous ZSH configuration file
+  stat:
+    path: "{{ ansible_user_dir }}/.zshrc"
+  register: zsh_install
 
 - name: Copy ZSH user configuration
   copy:
     dest: "{{ ansible_user_dir }}/.zshrc"
     src: .zshrc
+  when: not zsh_install.stat.exists
 
-- name: Install ZSH syntax highlighting
+- name: Install ZSH plugin - syntax highlighting
   git:
     repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
     dest: "{{ ansible_user_dir }}/.oh-my-zsh//plugins/zsh-syntax-highlighting"
 
-- name: Install ZSH autosuggestions
+- name: Install ZSH plugin - autosuggestions
   git:
     repo: https://github.com/zsh-users/zsh-autosuggestions.git
     dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-autosuggestions"
 
-- name: Install ZSH history substring search
+- name: Install ZSH plugin - substring search
   git:
     repo: https://github.com/zsh-users/zsh-history-substring-search.git
     dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-history-substring-search"
 
-- name: Install ZSH completions
+- name: Install ZSH plugin - completions
   git:
     repo: https://github.com/zsh-users/zsh-completions.git
     dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-completions"
