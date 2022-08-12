@@ -43,19 +43,23 @@
     comment: "{{ git_email }}"
   when: not ssh_keys.stat.exists
 
-- name: Set fact SSH_KEY_NOT_CHANGED
-  set_fact:
-    SSH_KEY_NOT_CHANGED: true
-  when: ssh_keys.stat.exists
+- name: Check if ssh config file exist
+  stat:
+    path: "{{ ansible_user_dir }}/.ssh/config"
+  register: ssh_config
 
 - name: Create ssh config file
   file:
     path: "{{ ansible_user_dir }}/.ssh/config"
     state: touch
+  when: not ssh_config.stat.exists
 
 - name: Add default ssh config (example, github, gitlab)
   blockinfile:
     path: "{{ ansible_user_dir }}/.ssh/config"
+    marker:  "{mark} ANSIBLE MANAGED BLOCK\n"
+    marker_begin: "\n# BEGIN"
+    marker_end: "\n# END"
     block: |
       # Host example.com
           # PreferredAuthentications publickey
@@ -68,3 +72,4 @@
       Host gitlab.com
           PreferredAuthentications publickey
           IdentityFile ~/.ssh/id_git
+  when: not ssh_config.stat.exists
