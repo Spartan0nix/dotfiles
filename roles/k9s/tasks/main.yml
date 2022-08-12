@@ -1,16 +1,52 @@
 ---
-- name: Install requirements
-  package:
-    name:
-      - curl
-    state: latest
-  become: true
+- name: Get download URL
+  github_release:
+    repo_name: k9s
+    repo_owner: derailed
+    asset_name: k9s_Linux_x86_64.tar.gz
+  register: k9s_release
 
-- name: Install
-  shell: |
-    curl -sS https://webinstall.dev/k9s | bash
+- name: Check for previous k9s install
+  stat:
+    path: "{{ ansible_user_dir }}/.local/bin/k9s"
+  register: k9s_install
 
-- name: Add k9s to user PATH
-  shell: |
-    echo "\nexport PATH=\$PATH:\$HOME/.local/bin" >> {{ ansible_user_dir }}/.bashrc
-    echo "\nexport PATH=\$PATH:\$HOME/.local/bin" >> {{ ansible_user_dir }}/.zshrc
+- name: Create local binairies dir
+  file:
+    path: "{{ ansible_user_dir }}/.local/bin"
+    state: directory
+  when: not k9s_install.stat.exists
+
+- name: Download k9s binairies
+  unarchive:
+    src: "{{ k9s_release.url }}"
+    dest: "{{ ansible_user_dir }}/.local/bin"
+    remote_src: yes
+  when: not k9s_install.stat.exists
+
+- name: Remove LICENSE from binairies dir
+  file:
+    path: "{{ ansible_user_dir }}/.local/bin/LICENSE"
+    state: absent
+  when: not k9s_install.stat.exists
+
+- name: Remove README from binairies dir
+  file:
+    path: "{{ ansible_user_dir }}/.local/bin/README.md"
+    state: absent
+  when: not k9s_install.stat.exists
+
+- name: Add k9s path
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^PATH=\$PATH:\$HOME/.local/bin'
+    line: 'PATH=$PATH:$HOME/.local/bin'
+  register: k9s_path
+  when: not k9s_install.stat.exists
+
+- name: Add k9s path documentation
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^PATH=\$PATH:\$HOME/.local/bin'
+    line: "\n# Add k9s binairies to PATH"
+  when: k9s_path.changed
