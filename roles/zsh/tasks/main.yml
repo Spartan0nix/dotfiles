@@ -23,6 +23,11 @@
   shell: sh /tmp/ohmyzsh_install.sh
   become_user: "{{ ansible_env['USER'] }}"  
 
+- name: Remove Oh-my-zsh install script
+  file:
+    path: /tmp/ohmyzsh_install.sh
+    state: absent
+
 - name: Create NerdFont directory
   file:
     path: "{{ ansible_user_dir }}/.local/share/fonts"

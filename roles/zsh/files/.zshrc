@@ -38,19 +38,16 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-# Convert a Windows PATH to a linux PATH before executin 'cd'
-function cdw() {
-    if [ $# -eq 1 ]; then
-        converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
-        cd_target="/mnt/${converted_path}"
-        cd $cd_target
-    else
-        echo "Missing required Windows path"
-    fi
-    unset converted_path
-    unset cd_target
-}
+# # Convert a Windows PATH to a linux PATH before executin 'cd'
+# function cdw() {
+#     if [ $# -eq 1 ]; then
+#         converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
+#         cd_target="/mnt/${converted_path}"
+#         cd $cd_target
+#     else
+#         echo "Missing required Windows path"
+#     fi
+#     unset converted_path
+#     unset cd_target
+# }
 
-# Clear the PATH if running WSL
-# ZSH performance can decrease a lot due to heavy number of entries in the PATH
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib
