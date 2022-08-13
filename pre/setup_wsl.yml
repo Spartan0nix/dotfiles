@@ -1,10 +1,8 @@
-- name: Extract VS Code PATH
-  shell: |
-    echo $PATH | tr ':' '\n' | grep "Microsoft VS Code" | sed 's/ /\\ /g'
-  register: wsl_vscode_path
-  when: WSL_VSCODE_PATH is not defined
+- name: Retrieve host PATH if running WSL
+  get_vscode_path:
+  register: windows_host_path
 
 - name: Set fact for VSCODE_PATH
   set_fact:
-    WSL_VSCODE_PATH: "{{ wsl_vscode_path.stdout }}"
-  when: WSL_VSCODE_PATH is not defined
+    WSL_VSCODE_PATH: "{{ windows_host_path.path }}"
+  when: windows_host_path.found
