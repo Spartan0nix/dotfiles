@@ -1,0 +1,21 @@
+---
+- name: Check for previous vscode-server install
+  stat:
+    path: "{{ ansible_user_dir }}/.vscode-server"
+  register: vscode_server_install
+
+- name: Download install script
+  get_url:
+    url: https://aka.ms/install-vscode-server/setup.sh
+    dest: /tmp/vscode-server-install.sh
+  when: not vscode_server_install.stat.exists
+
+- name: Execute install script
+  shell: sh /tmp/vscode-server-install.sh
+  when: not vscode_server_install.stat.exists
+
+- name: Remove install script
+  file:
+    path: /tmp/vscode-server-install.sh
+    state: absent
+  when: not vscode_server_install.stat.exists

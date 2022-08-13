@@ -1,14 +1,23 @@
 ---
-# when: lookup('env', 'WSL_DISTRO_NAME') == ""
-
 - include: setup_debian.yml
   when: (CURRENT_DISTRO == "Debian") and (lookup('env', 'WSL_DISTRO_NAME') == "")
 
-- name: Add vscode bin to PATH if running WSL
-  shell: |
-    echo "\nexport PATH=\$PATH:{{ WSL_VSCODE_PATH }}" >> {{ ansible_user_dir }}/.bashrc
-    echo "\nexport PATH=\$PATH:{{ WSL_VSCODE_PATH }}" >> {{ ansible_user_dir }}/.zshrc
-  when: WSL_VSCODE_PATH is defined
+- include: setup_server.yml
+
+- name: Add vscode path
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
+    line: 'PATH=$PATH:{{ WSL_VSCODE_PATH }}'
+  when: (WSL_VSCODE_PATH is defined) and (WSL_VSCODE_PATH != "")
+  register: win_vscode_path
+
+- name: Add Go path documentation
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
+    line: "\n# Add windows host vscode binairy to PATH"
+  when: win_vscode_path.changed
 
 - name: Install extensions
   shell: |
