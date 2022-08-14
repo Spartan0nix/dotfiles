@@ -6,17 +6,26 @@
     asset_name: amd64.deb
   register: bottom_dl_url
 
+- name: Check previous bottom install
+  script: "{{ ANSIBLE_PLAYBOOK_ROOT }}/scripts/check_version.py bottom {{ bottom_dl_url.version }}"
+  args:
+    executable: python3
+  register: bottom_install
+
 - name: Download source
-  unarchive:
-    src: "{{ bottom_dl_url.url }}"
+  get_url:
+    url: "{{ bottom_dl_url.url }}"
     dest: /tmp/bottom_amd64.deb
+  when: bottom_install.stdout != "match"
   
 - name: Install deb package
   apt:
     deb: /tmp/bottom_amd64.deb
   become: true
+  when: bottom_install.stdout != "match"
 
 - name: Remove source
   file:
     path: /tmp/bottom_amd64.deb
     state: absent
+  when: bottom_install.stdout != "match"
