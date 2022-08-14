@@ -21,6 +21,10 @@
 - name: Set CURRENT_DISTRO fact
   set_fact:
     CURRENT_DISTRO: "{{ distro_facts.ansible_facts.ansible_distribution }}"
+  
+- name: Set ANSIBLE_PLAYBOOK_ROOT fact
+  set_fact:
+    ANSIBLE_PLAYBOOK_ROOT: "{{ ansible_facts.env['PWD'] }}"
 
 - include: setup_wsl.yml
   when: lookup('env', 'WSL_DISTRO_NAME') != ""
