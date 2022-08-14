@@ -1,0 +1,30 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - wget 
+      - gpg
+    state: latest
+  become: true
+
+- name: Add APT repo
+  shell: |
+    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/cloud.google.gpg
+    chmod 644 /etc/apt/trusted.gpg.d/cloud.google.gpg
+    chown root:root /etc/apt/trusted.gpg.d/cloud.google.gpg
+    echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+  become: true
+  args:
+    warn: false
+
+- name: Update package repositories
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install cloud-sdk
+  package:
+    name:
+      - google-cloud-cli 
+    state: latest
+  become: true
