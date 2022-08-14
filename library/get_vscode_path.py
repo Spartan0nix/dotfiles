@@ -94,6 +94,7 @@ def run_module():
             linux_path = original_path.replace('C:', 'c')
             linux_path = linux_path.replace('\\', '/')
             linux_path = "/mnt/{}".format(linux_path)
+            linux_path = linux_path.replace(' ', '\ ')
 
             result['found'] = True
             result['original_path'] = original_path
