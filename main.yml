@@ -13,16 +13,16 @@
 
   pre_tasks:
     - include: pre/main.yml
+  post_tasks:
+    - include: post/main.yml
 
   roles:
-    - system
-    - go
-    - git
     - zsh
-    - neovim
+    - bottom
+    - git
+    - go
     - k9s
-    - vscode-server
-    - vscode
+    - neovim
     - podman
     - terraform
-    - bottom
+    - vscode
