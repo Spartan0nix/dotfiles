@@ -63,6 +63,10 @@ url:
     type: str
     returned: always
     sample: 'https://github.com/neovim/neovim/releases/download/v0.7.2/nvim-linux64.deb'
+version:
+    description: The release version for the desired asset
+    type: str
+    sample: '0.7.2'
 '''
 
 from ansible.module_utils.basic import AnsibleModule
@@ -78,6 +82,7 @@ def run_module():
     result = dict(
         found=False,
         url='',
+        version=''
     )
 
     module = AnsibleModule(
@@ -108,6 +113,9 @@ def run_module():
         if latest_request['message'] == 'Not Found':
                 module.fail_json(msg="The requested URL '{}' was not found".format(url), **result)
     
+    # Retrieve the release version
+    release_version = latest_request['tag_name']
+
     # Parse the different assets of the release
     release_assets = latest_request['assets']
     for asset in release_assets:
@@ -115,6 +123,7 @@ def run_module():
         if (asset['name'].__contains__(module.params['asset_name'])):
             result['url'] = asset['browser_download_url']
             result['found'] = True
+            result['version'] = release_version
             break
 
     # Return the response
