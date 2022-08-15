@@ -1,0 +1,30 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - wget 
+      - gpg
+    state: latest
+  become: true
+
+- name: Add APT repo
+  shell: |
+    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /usr/share/keyrings/kubernetes-archive-keyring.gpg
+    chmod 644 /usr/share/keyrings/kubernetes-archive-keyring.gpg
+    chown root:root /usr/share/keyrings/kubernetes-archive-keyring.gpg
+    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+  become: true
+  args:
+    warn: false
+
+- name: Update package repositories
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install kubectl
+  package:
+    name:
+      - kubectl
+    state: latest
+  become: true
