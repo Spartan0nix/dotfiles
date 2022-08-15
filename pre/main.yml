@@ -26,7 +26,7 @@
   set_fact:
     ANSIBLE_PLAYBOOK_ROOT: "{{ ansible_facts.env['PWD'] }}"
 
-- include: setup_wsl.yml
+- include_tasks: setup_wsl.yml
   when: lookup('env', 'WSL_DISTRO_NAME') != ""
 
 - name: Build ansible library path
@@ -39,4 +39,4 @@
   set_fact:
     ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
 
-- include: setup_path.yml
+- include_tasks: setup_path.yml

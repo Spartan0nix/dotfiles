@@ -1,8 +1,8 @@
 ---
-- include: setup_debian.yml
+- include_tasks: setup_debian.yml
   when: (CURRENT_DISTRO == "Debian") and (lookup('env', 'WSL_DISTRO_NAME') == "")
 
-- include: setup_server.yml
+- include_tasks: setup_server.yml
 
 - name: Add vscode path
   lineinfile:

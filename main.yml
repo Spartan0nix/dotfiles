@@ -12,9 +12,9 @@
       - hashicorp.terraform
 
   pre_tasks:
-    - include: pre/main.yml
+    - include_tasks: pre/main.yml
   post_tasks:
-    - include: post/main.yml
+    - include_tasks: post/main.yml
 
   roles:
     - zsh
@@ -27,3 +27,4 @@
     - terraform
     - vscode
     - gcloud
+    - kubectl

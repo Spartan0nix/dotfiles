@@ -7,7 +7,7 @@
     state: latest
   become: true
 
-- include: setup_debian.yml
+- include_tasks: setup_debian.yml
   when: CURRENT_DISTRO == "Debian"
 
 - name: Checking for previous config
