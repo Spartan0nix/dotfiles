@@ -5,6 +5,7 @@
       - git
       - jq
       - curl
+      - net-tools
     state: latest
   become: true
 
