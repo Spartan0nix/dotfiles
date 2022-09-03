@@ -54,15 +54,22 @@
   when: not nerd_font_install.stat.exists
 
 - name: Check previous ZSH configuration file
-  stat:
-    path: "{{ ansible_user_dir }}/.zshrc"
+  shell: |
+    grep "# Custom script maker" "{{ ansible_user_dir }}"/.zshrc
+  ignore_errors: true
+  check_mode: false
+  changed_when: false
   register: zsh_install
+
+- name: Debug
+  debug:
+    var: zsh_install
 
 - name: Copy ZSH user configuration
   copy:
     dest: "{{ ansible_user_dir }}/.zshrc"
     src: .zshrc
-  when: not zsh_install.stat.exists
+  when: zsh_install.rc != 0
 
 - name: Install ZSH plugin - syntax highlighting
   git:
@@ -83,4 +90,3 @@
   git:
     repo: https://github.com/zsh-users/zsh-completions.git
     dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-completions"
-
