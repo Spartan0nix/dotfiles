@@ -61,10 +61,6 @@
   changed_when: false
   register: zsh_install
 
-- name: Debug
-  debug:
-    var: zsh_install
-
 - name: Copy ZSH user configuration
   copy:
     dest: "{{ ansible_user_dir }}/.zshrc"
