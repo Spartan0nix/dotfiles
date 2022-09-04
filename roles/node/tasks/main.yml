@@ -20,6 +20,21 @@
   when: ca_file != ""
   become: true
 
+- name: Add NODE_EXTRA_CA_CERTS environment variable
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^NODE_EXTRA_CA_CERTS={{ ca_file }}'
+    line: 'NODE_EXTRA_CA_CERTS={{ ca_file }}'
+  when: ca_file != ""
+  register: node_extra_certs_path
+
+- name: Add NODE_EXTRA_CA_CERTS documentation
+  lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^NODE_EXTRA_CA_CERTS={{ ca_file }}'
+    line: "\n# Add nodejs environment variable"
+  when: node_extra_certs_path.changed
+
 - name: Install npm package 'n'
   npm:
     name: n
