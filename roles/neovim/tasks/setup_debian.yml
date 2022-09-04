@@ -7,26 +7,26 @@
   register: neovim_release
 
 - name: Check previous neovim install
-  script: "{{ ANSIBLE_PLAYBOOK_ROOT }}/scripts/check_version.py neovim {{ neovim_release.version }}"
-  args:
-    executable: python3
-  register: bottom_install
+  shell: |
+    dpkg-query -W --showformat='${Version}\n' neovim
+  ignore_errors: true
+  register: neovim_install
 
 - name: Download deb package
   get_url: 
     url: "{{ neovim_release.url }}"
     dest: /tmp/nvim-linux64.deb
-  when: bottom_install.stdout != "match"
+  when: neovim_install.rc != 0
 
 - name: Install deb package
   apt:
     deb: /tmp/nvim-linux64.deb
   become: true
-  when: bottom_install.stdout != "match"
+  when: neovim_install.rc != 0
 
 - name: Remove deb package
   file:
     path: /tmp/nvim-linux64.deb
     state: absent
   become: true
-  when: bottom_install.stdout != "match"
+  when: neovim_install.rc != 0
