@@ -1,0 +1,34 @@
+---
+- name: Install requirements
+  package:
+    name:
+      - unzip
+    state: latest
+  become: true
+  
+- name: Install LSP node modules
+  npm:
+    name: bash-language-server
+    global: yes
+  become: true
+
+- name: Install LSP terraformls package
+  package:
+    name: terraform-ls
+    state: latest
+  become: true
+
+- name: Get tflint install script
+  get_url:
+    url: https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh
+    dest: /tmp/tflint_install.sh
+
+- name: Execute tflint install script
+  shell: |
+    sh /tmp/tflint_install.sh
+  become: true
+
+- name: Remove tflint install script
+  file:
+    path: /tmp/tflint_install.sh
+    state: absent

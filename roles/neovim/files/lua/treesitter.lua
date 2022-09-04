@@ -4,7 +4,8 @@ require'nvim-treesitter.configs'.setup {
         "bash",
         "c", 
         "lua", 
-        "go" 
+        "go",
+        "hcl"
     },
     highlight = {
       enable = true,

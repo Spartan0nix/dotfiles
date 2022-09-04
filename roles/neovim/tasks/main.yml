@@ -56,8 +56,4 @@
     global: yes
   become: true
 
-- name: Install LSP node modules
-  npm:
-    name: bash-language-server
-    global: yes
-  become: true
+- include_tasks: setup_lsp.yml

@@ -1,7 +1,9 @@
 local lsp_servers = {
     "bashls",
     "gopls",
-    "pyright"
+    "pyright",
+    "terraformls",
+    "tflint"
   }
   
   
