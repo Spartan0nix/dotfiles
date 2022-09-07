@@ -57,3 +57,12 @@
   become: true
 
 - include_tasks: setup_lsp.yml
+
+- name: Download A Font icons
+  get_url:
+    url: https://github.com/yamatsum/nonicons/raw/master/dist/nonicons.ttf
+    dest: "{{ ansible_user_dir }}/.local/share/fonts/a-font-nonicons.ttf"
+  
+- name: Reload font cache
+  shell: |
+    fc-cache -f
