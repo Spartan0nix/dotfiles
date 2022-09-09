@@ -2,3 +2,4 @@ dependencies:
   - role: go
   - role: python
   - role: node
+  - role: nerd_font
