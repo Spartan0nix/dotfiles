@@ -3,3 +3,4 @@ dependencies:
   - role: python
   - role: node
   - role: nerd_font
+  - role: terraform
