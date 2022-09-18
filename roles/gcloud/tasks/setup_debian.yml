@@ -25,6 +25,7 @@
 - name: Install cloud-sdk
   package:
     name:
-      - google-cloud-cli 
+      - google-cloud-cli
+      - google-cloud-sdk-gke-gcloud-auth-plugin
     state: latest
   become: true
