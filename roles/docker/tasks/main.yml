@@ -1,0 +1,12 @@
+---
+- name: Install packages
+  package:
+    name:
+      - ca-certificates
+      - curl
+      - gnupg 
+      - lsb-release
+    state: latest
+  become: true
+
+- include_tasks: setup_debian.yml
