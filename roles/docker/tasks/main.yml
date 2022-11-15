@@ -10,3 +10,7 @@
   become: true
 
 - include_tasks: setup_debian.yml
+  when: (CURRENT_DISTRO == "Debian")
+
+- include_tasks: setup_wsl.yml
+  when: lookup('env', 'WSL_DISTRO_NAME')

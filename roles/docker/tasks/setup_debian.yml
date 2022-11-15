@@ -23,3 +23,13 @@
       - docker-compose-plugin
     state: latest
   become: true
+
+- name: Switch to legacy iptables
+  shell: |
+     update-alternatives --set iptables /usr/sbin/iptables-legacy
+  become: true
+
+- name: Add user to docker group
+  shell: |
+    usermod -aG docker "{{ ansible_facts['user_id'] }}"
+  become: true
