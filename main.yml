@@ -17,14 +17,14 @@
     - include_tasks: post/main.yml
 
   roles:
-    # - zsh
-    # - bottom
-    # - git
-    # - go
-    # - k9s
-    # - neovim
+    - zsh
+    - bottom
+    - git
+    - go
+    - k9s
+    - neovim
     - docker
-    # - terraform
-    # - vscode
-    # - gcloud
-    # - kubectl
+    - terraform
+    - vscode
+    - gcloud
+    - kubectl
