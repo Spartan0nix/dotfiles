@@ -38,17 +38,3 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
-
-# # Convert a Windows PATH to a linux PATH before executin 'cd'
-# function cdw() {
-#     if [ $# -eq 1 ]; then
-#         converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
-#         cd_target="/mnt/${converted_path}"
-#         cd $cd_target
-#     else
-#         echo "Missing required Windows path"
-#     fi
-#     unset converted_path
-#     unset cd_target
-# }
-

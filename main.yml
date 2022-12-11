@@ -3,6 +3,7 @@
   vars:
     vscode_extensions:
       - redhat.ansible
+      - redhat.vscode-yaml
       - akamud.vscode-theme-onedark
       - alexdima.copy-relative-path
       - golang.go
