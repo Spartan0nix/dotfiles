@@ -25,8 +25,10 @@ fi
 VAULT_PASSWORD_PATH=$HOME/.config/dotfiles/vault_password.txt
 if [[ -f $VAULT_PASSWORD_PATH ]]; then
     # Run ansible playbook
-    ansible-playbook --ask-become-pass --vault-password-file $VAULT_PASSWORD_PATH main.yml
+    ansible-playbook --ask-become-pass --vault-password-file $VAULT_PASSWORD_PATH -e @vault.yml main.yml
 else
     # Run ansible playbook
-    ansible-playbook --ask-become-pass --ask-vault-password main.yml
+    ansible-playbook --ask-become-pass --ask-vault-password -e @vault.yml main.yml
 fi
+
+exit 0
