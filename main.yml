@@ -1,5 +1,5 @@
 - name: Spartan0nix dotfiles
-  hosts: all
+  hosts: targetmachines
   vars:
     vscode_extensions:
       - redhat.ansible

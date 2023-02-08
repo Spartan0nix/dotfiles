@@ -15,6 +15,12 @@ powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://gith
 ```bash
 git clone https://github.com/Spartan0nix/dotfiles.git
 cd dotfiles
+```
+
+Before executing the **install.sh** script, update the **hosts** (*targetmachines*) field from **main.yml** to **localhost**.
+
+Then :
+```
 bash install.sh
 ```
 
