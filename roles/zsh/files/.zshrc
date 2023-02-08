@@ -1,6 +1,6 @@
 # ~/.zshrc file for zsh interactive shells.
 # see /usr/share/doc/zsh/examples/zshrc for examples
-# Custom script maker
+# Custom script marker
 
 # Path to your oh-my-zsh installation.
 export ZSH="$HOME/.oh-my-zsh"

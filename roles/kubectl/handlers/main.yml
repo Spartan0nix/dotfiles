@@ -1,0 +1,11 @@
+- name: Add documentation for bash completion
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    insertbefore: '^source <\(kubectl completion bash\)'
+    line: "\n# Enable kubectl bash autocompletion"
+
+- name: Add documentation for zsh completion
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertbefore: '^source <\(kubectl completion zsh\)'
+    line: "\n# Enable kubectl zsh autocompletion"

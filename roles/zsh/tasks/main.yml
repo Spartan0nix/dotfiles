@@ -1,6 +1,5 @@
----
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa: package-latest
     name:
       - curl
       - zsh
@@ -9,63 +8,45 @@
   become: true
 
 - name: Set ZSH as default shell
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_env['USER'] }}"
     shell: /usr/bin/zsh
   become: true
 
 - name: Check previous Oh-my-zsh install
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.oh-my-zsh"
-  register: oh_my_zsh_install
+  register: ohmyzsh_install
 
 - name: Download Oh-my-zsh install script
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: /tmp/ohmyzsh_install.sh
-  when: not oh_my_zsh_install.stat.exists
+    mode: 0650
+  when: not ohmyzsh_install.stat.exists
 
 - name: Execute Oh-my-zsh install script
-  shell: sh /tmp/ohmyzsh_install.sh
-  become_user: "{{ ansible_env['USER'] }}"  
-  when: not oh_my_zsh_install.stat.exists
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo -e "Y" | bash /tmp/ohmyzsh_install.sh
+  become_user: "{{ ansible_env['USER'] }}"
+  when: not ohmyzsh_install.stat.exists
 
 - name: Remove Oh-my-zsh install script
-  file:
+  ansible.builtin.file:
     path: /tmp/ohmyzsh_install.sh
     state: absent
-  when: not oh_my_zsh_install.stat.exists
+  when: not ohmyzsh_install.stat.exists
 
 - name: Check previous ZSH configuration file
-  shell: |
-    grep "# Custom script maker" "{{ ansible_user_dir }}"/.zshrc
-  ignore_errors: true
-  check_mode: false
-  changed_when: false
-  register: zsh_install
-
-- name: Copy ZSH user configuration
-  copy:
-    dest: "{{ ansible_user_dir }}/.zshrc"
-    src: .zshrc
-  when: zsh_install.rc != 0
-
-- name: Install ZSH plugin - syntax highlighting
-  git:
-    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
-    dest: "{{ ansible_user_dir }}/.oh-my-zsh//plugins/zsh-syntax-highlighting"
-
-- name: Install ZSH plugin - autosuggestions
-  git:
-    repo: https://github.com/zsh-users/zsh-autosuggestions.git
-    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-autosuggestions"
-
-- name: Install ZSH plugin - substring search
-  git:
-    repo: https://github.com/zsh-users/zsh-history-substring-search.git
-    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-history-substring-search"
-
-- name: Install ZSH plugin - completions
-  git:
-    repo: https://github.com/zsh-users/zsh-completions.git
-    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-completions"
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    line: "# Custom script marker"
+    state: present
+  check_mode: true
+  notify:
+    - Copy ZSH user configuration
+    - Install ZSH plugin - syntax highlighting
+    - Install ZSH plugin - autosuggestions
+    - Install ZSH plugin - substring search
+    - Install ZSH plugin - completions

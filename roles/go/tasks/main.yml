@@ -1,24 +1,26 @@
----
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa : package-latest
     name:
       - git
     state: latest
   become: true
 
 - name: Checking for previous Go install
-  stat:
+  ansible.builtin.stat:
     path: /usr/local/go
   register: go_install
 
 - name: Get latest tag
-  shell: |
+  ansible.builtin.shell: |
+    set -o pipefail
     git ls-remote --tags https://github.com/golang/go.git | grep -E '\bgo1\b\.[0-9]{2,}\.[0-9]{1,2}' | cut --delimiter="/" --fields=3 | sort -n | tail -1
+  args:
+    executable: /bin/bash
   register: go_tag
   when: not go_install.stat.exists
 
 - name: Unarchive Go binairies
-  unarchive:
+  ansible.builtin.unarchive:
     src: "https://go.dev/dl/{{ go_tag.stdout }}.linux-amd64.tar.gz"
     dest: /usr/local
     remote_src: true
@@ -26,22 +28,21 @@
   become: true
 
 - name: Add Go path
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     regexp: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
     line: 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
   when: not go_install.stat.exists
-  register: go_path
 
 - name: Add Go path documentation
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     insertbefore: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
     line: "\n# Add Go binairies to PATH"
-  when: go_path.changed
+  when: not go_install.stat.exists
 
 - name: Install Gopls
-  shell: |
+  ansible.builtin.shell: |
     export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin
     go install golang.org/x/tools/gopls@latest
   when: not go_install.stat.exists

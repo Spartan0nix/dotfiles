@@ -1,0 +1,7 @@
+- name: Add vscode path
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
+    line: 'PATH=$PATH:{{ WSL_VSCODE_PATH }}'
+  notify:
+    - Add vscode path documentation

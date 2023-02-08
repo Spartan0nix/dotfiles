@@ -1,25 +1,17 @@
----
-- include_tasks: setup_debian.yml
-  when: (CURRENT_DISTRO == "Debian") and (lookup('env', 'WSL_DISTRO_NAME') == "")
+- name: Install for Debian
+  ansible.builtin.include_tasks: setup_debian.yml
+  when: (CURRENT_DISTRO == "Debian") and ('WSL_DISTRO_NAME' not in ansible_env)
 
-- include_tasks: setup_server.yml
+- name: Install server
+  ansible.builtin.include_tasks: setup_server.yml
+  when: ('WSL_DISTRO_NAME' in ansible_env)
 
-- name: Add vscode path
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    regexp: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
-    line: 'PATH=$PATH:{{ WSL_VSCODE_PATH }}'
-  when: (WSL_VSCODE_PATH is defined) and (WSL_VSCODE_PATH != "")
-  register: win_vscode_path
-
-- name: Add Go path documentation
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
-    line: "\n# Add windows host vscode binairy to PATH"
-  when: win_vscode_path.changed
+- name: Configure WSL
+  ansible.builtin.include_tasks: configure_wsl.yml
+  when: ('WSL_DISTRO_NAME' in ansible_env) and (WSL_VSCODE_PATH is defined)
 
 - name: Install extensions
-  shell: |
-    code --install-extension "{{ item }}"
+  ansible.builtin.command: code --install-extension "{{ item }}"
+  register: vscode_extension
+  changed_when: vscode_extension.rc != 0
   loop: "{{ vscode_extensions }}"

@@ -1,43 +1,44 @@
----
+- name: Check for previous k9s install
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.local/bin/k9s"
+  register: k9s_install
+
 - name: Get download URL
   github_release:
     repo_name: k9s
     repo_owner: derailed
-    asset_name: k9s_Linux_x86_64.tar.gz
+    asset_name: k9s_Linux_amd64.tar.gz
   register: k9s_release
-
-- name: Check for previous k9s install
-  stat:
-    path: "{{ ansible_user_dir }}/.local/bin/k9s"
-  register: k9s_install
+  when: not k9s_install.stat.exists
 
 - name: Create local binairies dir
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/bin"
     state: directory
+    mode: 0700
   when: not k9s_install.stat.exists
 
 - name: Download k9s binairies
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ k9s_release.url }}"
     dest: "{{ ansible_user_dir }}/.local/bin"
-    remote_src: yes
+    remote_src: true
   when: not k9s_install.stat.exists
 
 - name: Remove LICENSE from binairies dir
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/bin/LICENSE"
     state: absent
   when: not k9s_install.stat.exists
 
 - name: Remove README from binairies dir
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/bin/README.md"
     state: absent
   when: not k9s_install.stat.exists
 
 - name: Add k9s path
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     regexp: '^PATH=\$PATH:\$HOME/.local/bin'
     line: 'PATH=$PATH:$HOME/.local/bin'
@@ -45,8 +46,22 @@
   when: not k9s_install.stat.exists
 
 - name: Add k9s path documentation
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     insertbefore: '^PATH=\$PATH:\$HOME/.local/bin'
     line: "\n# Add k9s binairies to PATH"
-  when: k9s_path.changed
+  when: not k9s_install.stat.exists
+
+- name: Create config dir
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/k9s"
+    state: directory
+    mode: 0755
+  when: not k9s_install.stat.exists
+
+- name: Add k9s 'one-dark' skin
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/derailed/k9s/master/skins/one_dark.yml"
+    dest: "{{ ansible_user_dir }}/.config/k9s/skin.yml"
+    mode: 0644
+  when: not k9s_install.stat.exists

@@ -1,0 +1,25 @@
+- name: Copy ZSH user configuration
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.zshrc"
+    src: .zshrc
+    mode: 0644
+
+- name: Install ZSH plugin - syntax highlighting
+  ansible.builtin.git: # noqa : latest
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh//plugins/zsh-syntax-highlighting"
+
+- name: Install ZSH plugin - autosuggestions
+  ansible.builtin.git: # noqa : latest
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-autosuggestions"
+
+- name: Install ZSH plugin - substring search
+  ansible.builtin.git: # noqa : latest
+    repo: https://github.com/zsh-users/zsh-history-substring-search.git
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-history-substring-search"
+
+- name: Install ZSH plugin - completions
+  ansible.builtin.git: # noqa : latest
+    repo: https://github.com/zsh-users/zsh-completions.git
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/zsh-completions"

@@ -1,0 +1,56 @@
+- name: Create nvim directory
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/nvim"
+    state: directory
+    mode: 0700
+
+- name: Copy init file
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.config/nvim/init.vim"
+    src: "init.vim"
+    mode: 0700
+
+- name: Copy configuration directory
+  ansible.builtin.copy:
+    dest: "{{ ansible_user_dir }}/.config/nvim/lua"
+    src: "lua/"
+    mode: 0700
+
+- name: Create vim-plug dir
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload"
+    state: directory
+    recurse: true
+    mode: 0744
+
+- name: Install vim-plug
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    dest: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload/plug.vim"
+    mode: 0744
+
+- name: Install pynvim
+  ansible.builtin.pip:
+    name: pynvim
+  become: true
+
+- name: Install neovim node modules
+  community.general.npm:
+    name: neovim
+    global: true
+  become: true
+
+- name: Setup LSP
+  ansible.builtin.include_tasks: setup_lsp.yml
+
+- name: Download A Font icons
+  ansible.builtin.get_url:
+    url: https://github.com/yamatsum/nonicons/raw/master/dist/nonicons.ttf
+    dest: "{{ ansible_user_dir }}/.local/share/fonts/a-font-nonicons.ttf"
+    mode: 0644
+
+- name: Reload font cache
+  ansible.builtin.shell: |
+    fc-cache -f
+  register: font_reload
+  changed_when: font_reload.rc != 0

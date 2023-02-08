@@ -1,5 +1,5 @@
----
-- hosts: localhost
+- name: Spartan0nix dotfiles
+  hosts: targetmachines
   vars:
     vscode_extensions:
       - redhat.ansible
@@ -12,20 +12,38 @@
       - jebbs.plantuml
       - hashicorp.terraform
 
+  vars_prompt:
+    - name: node_version
+      prompt: Which version of node would you like to install ?
+      default: "lts"
+
   pre_tasks:
-    - include_tasks: pre/main.yml
+    - name: Run pre tasks
+      ansible.builtin.include_tasks: pre/main.yml
   post_tasks:
-    - include_tasks: post/main.yml
+    - name: Run post tasks
+      ansible.builtin.include_tasks: post/main.yml
 
   roles:
     - zsh
     - bottom
+    - docker
+    - gcloud
     - git
     - go
     - k9s
-    - neovim
-    - docker
-    - terraform
-    - vscode
-    - gcloud
     - kubectl
+    - neovim
+    - vscode
+    # --------------------
+    # Installed with zsh
+    # - python
+    # - nerd_font
+    # --------------------
+    # Installed with neovim
+    # - node
+    # - terraform
+    # --------------------
+
+# For WSL
+# when: ('WSL_DISTRO_NAME' in ansible_env)

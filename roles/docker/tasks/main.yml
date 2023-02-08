@@ -1,16 +1,17 @@
----
 - name: Install packages
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
       - ca-certificates
       - curl
-      - gnupg 
+      - gnupg
       - lsb-release
     state: latest
   become: true
 
-- include_tasks: setup_debian.yml
+- name: Install for Debian
+  ansible.builtin.include_tasks: setup_debian.yml
   when: (CURRENT_DISTRO == "Debian")
 
-- include_tasks: setup_wsl.yml
-  when: lookup('env', 'WSL_DISTRO_NAME')
+- name: Configure for WSL
+  ansible.builtin.include_tasks: setup_wsl.yml
+  # when: ('WSL_DISTRO_NAME' in ansible_env)

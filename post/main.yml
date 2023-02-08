@@ -1,65 +1,92 @@
----
+# ----------------------------------------------
 - name: Include .path file in bashrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
     regexp: '^source ~/.path'
     line: 'source ~/.path'
   register: bashrc_update
 
 - name: Add documentation for .path import in bashrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
     insertbefore: '^source ~/.path'
     line: "\n# Source file containing path update"
   when: bashrc_update.changed
+# ----------------------------------------------
 
+# ----------------------------------------------
 - name: Include .path file in zshrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
     regexp: '^source ~/.path'
     line: 'source ~/.path'
-    create: yes
+    create: true
   register: zshrc_update
 
 - name: Add documentation for .path import in zshrc
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
     insertbefore: '^source ~/.path'
     line: "\n# Source file containing path update"
   when: zshrc_update.changed
-    
+# ----------------------------------------------
+
 - name: Add function cdw to bashrc
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
     block: |
       # Convert a Windows PATH to a linux PATH before executin 'cd'
       function cdw() {
-          if [ $# -eq 1 ]; then
+          if [[ $# -gt 1 ]]; then
               converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
               cd_target="/mnt/${converted_path}"
-              cd $cd_target
+              if [[ $2 == "--print" ]]; then
+                echo $cd_target
+              else
+                cd $cd_target
+              fi
           else
               echo "Missing required Windows path"
           fi
           unset converted_path
           unset cd_target
       }
-  when: lookup('env', 'WSL_DISTRO_NAME') != ""
+  when: ('WSL_DISTRO_NAME' in ansible_env)
+  register: cdw_bashrc
+
+- name: Add space before cdw function in bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    insertbefore: "# Convert a Windows PATH to a linux PATH before executin 'cd'"
+    line: ""
+  when: cdw_bashrc.changed
 
 - name: Add function cdw to zshrc
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
     block: |
       # Convert a Windows PATH to a linux PATH before executin 'cd'
       function cdw() {
-          if [ $# -eq 1 ]; then
+          if [ $# -gt 1 ]; then
               converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
               cd_target="/mnt/${converted_path}"
-              cd $cd_target
+              if [ "$2" = "--print" ]; then
+                echo $cd_target
+              else
+                cd $cd_target
+              fi
           else
               echo "Missing required Windows path"
           fi
           unset converted_path
           unset cd_target
       }
-  when: lookup('env', 'WSL_DISTRO_NAME') != ""
+  when: ('WSL_DISTRO_NAME' in ansible_env)
+  register: zsh_bashrc
+
+- name: Add space before cdw function in zshrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertbefore: "# Convert a Windows PATH to a linux PATH before executin 'cd'"
+    line: ""
+  when: zsh_bashrc.changed

@@ -1,11 +1,17 @@
----
+- name: Validate node prompt
+  ansible.builtin.assert:
+    that:
+      - node_version is regex("(latest|lts|[0-9]+(\.[0-9]+)?(\.[0-9]+)?)")
+    fail_msg: 'Node version should follow the given pattern "(latest|lts|[0-9]+(\.[0-9]+)?(\.[0-9]+)?)". Example : latest, lts, 18, 18.6, 18.6.0'
+
 - name: Install default packages
-  package:
+  ansible.builtin.package:
     name:
       - git
       - jq
       - curl
       - net-tools
+      - vim
     state: latest
   become: true
 
@@ -20,24 +26,11 @@
   register: distro_facts
 
 - name: Set CURRENT_DISTRO fact
-  set_fact:
+  ansible.builtin.set_fact:
     CURRENT_DISTRO: "{{ distro_facts.ansible_facts.ansible_distribution }}"
-  
-- name: Set ANSIBLE_PLAYBOOK_ROOT fact
-  set_fact:
-    ANSIBLE_PLAYBOOK_ROOT: "{{ ansible_facts.env['PWD'] }}"
 
-- include_tasks: setup_wsl.yml
-  when: lookup('env', 'WSL_DISTRO_NAME') != ""
-
-- name: Build ansible library path
-  shell: |
-    CURRENT_PATH=$(pwd)
-    echo "$CURRENT_PATH/library"
-  register: ansible_library
-
-- name: Set ANSIBLE_LIBRARY fact
-  set_fact:
-    ANSIBLE_LIBRARY: "{{ ansible_library.stdout }}"
+# TODO - Update an switch to script block instead of custom module
+# - include_tasks: extract_vscode_path.yml
+#   when: ('WSL_DISTRO_NAME' in ansible_env)
 
 - include_tasks: setup_path.yml

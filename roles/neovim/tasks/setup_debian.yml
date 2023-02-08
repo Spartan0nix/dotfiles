@@ -1,4 +1,3 @@
----
 - name: Get download URL
   github_release:
     repo_name: neovim
@@ -7,25 +6,27 @@
   register: neovim_release
 
 - name: Check previous neovim install
-  shell: |
+  ansible.builtin.shell: |
     dpkg-query -W --showformat='${Version}\n' neovim
   ignore_errors: true
   register: neovim_install
+  changed_when: neovim_install.rc == 1
 
 - name: Download deb package
-  get_url: 
+  ansible.builtin.get_url:
     url: "{{ neovim_release.url }}"
     dest: /tmp/nvim-linux64.deb
+    mode: 0740
   when: neovim_install.rc != 0
 
 - name: Install deb package
-  apt:
+  ansible.builtin.apt:
     deb: /tmp/nvim-linux64.deb
   become: true
   when: neovim_install.rc != 0
 
 - name: Remove deb package
-  file:
+  ansible.builtin.file:
     path: /tmp/nvim-linux64.deb
     state: absent
   become: true

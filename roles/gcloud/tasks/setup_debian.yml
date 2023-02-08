@@ -1,31 +1,47 @@
----
+- name: Check if APT repo exist
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/google-cloud-sdk.list
+  register: gcloud_install
+  become: true
+
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
-      - wget 
+      - wget
       - gpg
     state: latest
   become: true
+  when: not gcloud_install.stat.exists
 
 - name: Add APT repo
-  shell: |
-    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/cloud.google.gpg
+  ansible.builtin.shell: |
+    set -o pipefail
+
+    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+      | gpg --dearmor \
+      | tee /etc/apt/trusted.gpg.d/cloud.google.gpg
+
     chmod 644 /etc/apt/trusted.gpg.d/cloud.google.gpg
     chown root:root /etc/apt/trusted.gpg.d/cloud.google.gpg
-    echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" > /etc/apt/sources.list.d/google-cloud-sdk.list
+
+    echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+      | tee /etc/apt/sources.list.d/google-cloud-sdk.list
   become: true
+  when: not gcloud_install.stat.exists
   args:
-    warn: false
+    executable: /bin/bash
 
 - name: Update package repositories
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
   become: true
+  when: not gcloud_install.stat.exists
 
-- name: Install cloud-sdk
-  package:
+- name: Install packages
+  ansible.builtin.package: # noqa package-latest
     name:
       - google-cloud-cli
       - google-cloud-sdk-gke-gcloud-auth-plugin
     state: latest
   become: true
+  when: not gcloud_install.stat.exists

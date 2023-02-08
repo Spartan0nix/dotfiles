@@ -1,6 +1,5 @@
----
 - name: Install packages
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
       - nodejs
       - npm
@@ -8,39 +7,26 @@
   become: true
 
 - name: Retrieve npm config
-  command: npm config list --json
+  ansible.builtin.command: npm config list --json
   register: npm_config
+  changed_when: npm_config.rc != 0
 
-- name: Setting ca_file fact
-  set_fact: 
-    ca_file: "{{ (npm_config.stdout|from_json).cafile }}"
+- name: Set ca_file fact
+  ansible.builtin.set_fact: # noqa yaml
+    ca_file: "{{ (npm_config.stdout | from_json).cafile }}"
 
-- name: Setting custom CA certificate on global config
-  command: npm config set --location=global cafile {{ ca_file }}
+- name: Setup custom CA
+  ansible.builtin.include_tasks: setup_ca.yml
   when: ca_file != ""
-  become: true
-
-- name: Add NODE_EXTRA_CA_CERTS environment variable
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    regexp: '^NODE_EXTRA_CA_CERTS={{ ca_file }}'
-    line: 'NODE_EXTRA_CA_CERTS={{ ca_file }}'
-  when: ca_file != ""
-  register: node_extra_certs_path
-
-- name: Add NODE_EXTRA_CA_CERTS documentation
-  lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^NODE_EXTRA_CA_CERTS={{ ca_file }}'
-    line: "\n# Add nodejs environment variable"
-  when: node_extra_certs_path.changed
 
 - name: Install npm package 'n'
-  npm:
+  community.general.npm:
     name: n
-    global: yes
+    global: true
   become: true
 
-- name: Install latest node version
-  shell: n latest
+- name: Install desired node version
+  ansible.builtin.command: "n {{ node_version }}"
+  register: node_install
+  changed_when: node_install.rc != 0
   become: true

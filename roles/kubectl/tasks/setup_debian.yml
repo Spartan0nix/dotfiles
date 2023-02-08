@@ -1,30 +1,46 @@
----
+- name: Check if APT repo exist
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/kubernetes.list
+  register: kubectl_install
+  become: true
+
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
-      - wget 
+      - wget
       - gpg
     state: latest
   become: true
+  when: not kubectl_install.stat.exists
 
 - name: Add APT repo
-  shell: |
-    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor | tee /usr/share/keyrings/kubernetes-archive-keyring.gpg
-    chmod 644 /usr/share/keyrings/kubernetes-archive-keyring.gpg
-    chown root:root /usr/share/keyrings/kubernetes-archive-keyring.gpg
-    echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list
+  ansible.builtin.shell: |
+    set -o pipefail
+
+    wget -qO- https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+      | gpg --dearmor \
+      | tee /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg
+
+    chmod 644 /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg
+    chown root:root /etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg
+
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" \
+      | tee /etc/apt/sources.list.d/kubernetes.list
   become: true
+  when: not kubectl_install.stat.exists
   args:
-    warn: false
+    executable: /bin/bash
 
 - name: Update package repositories
-  apt:
-    update_cache: yes
+  ansible.builtin.apt:
+    update_cache: true
   become: true
+  when: not kubectl_install.stat.exists
 
 - name: Install kubectl
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
       - kubectl
     state: latest
   become: true
+  when: not kubectl_install.stat.exists

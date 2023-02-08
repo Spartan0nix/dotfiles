@@ -1,34 +1,35 @@
----
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
       - unzip
     state: latest
   become: true
-  
+
 - name: Install LSP node modules
-  npm:
+  community.general.npm:
     name: bash-language-server
-    global: yes
+    global: true
   become: true
 
 - name: Install LSP terraformls package
-  package:
+  ansible.builtin.package: # noqa package-latest
     name: terraform-ls
     state: latest
   become: true
 
 - name: Get tflint install script
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh
     dest: /tmp/tflint_install.sh
+    mode: 0740
 
 - name: Execute tflint install script
-  shell: |
-    sh /tmp/tflint_install.sh
+  ansible.builtin.command: /tmp/tflint_install.sh
+  register: terraform_install_script
+  changed_when: terraform_install_script.rc != 0
   become: true
 
 - name: Remove tflint install script
-  file:
+  ansible.builtin.file:
     path: /tmp/tflint_install.sh
     state: absent

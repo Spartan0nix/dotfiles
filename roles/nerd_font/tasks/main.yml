@@ -1,17 +1,16 @@
----
 - name: Check previous NerdFont install
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
   register: nerd_font_install
 
 - name: Create NerdFont directory
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/share/fonts"
     state: directory
   when: not nerd_font_install.stat.exists
 
 - name: Install NerdFont 'Caskaydia Cove Regular'
-  get_url:
+  ansible.builtin.get_url:
     url: "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/CascadiaCode/Regular/complete/Caskaydia%20Cove%20Nerd%20Font%20Complete%20Regular.otf"
     dest: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
   when: not nerd_font_install.stat.exists

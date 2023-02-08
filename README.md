@@ -2,12 +2,12 @@
 
 ## Installation
 
-### (optional) - Setup custom CA
+### (optional) - Setup custom CA for WSL
 
-Download the script 'export-ca.ps1' from the UI or using the following command :
+Download the script 'wsl-configure-ca.ps1' from the UI or using the following command :
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://githubraw.com/Spartan0nix/dotfiles/main/export-ca.ps1 -OutFile export-ca.ps1; ./export-ca.ps1; Remove-Item export-ca.ps1"
+powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://githubraw.com/Spartan0nix/dotfiles/main/scripts/wsl-configure-ca.ps1 -OutFile wsl-configure-ca.ps1; ./wsl-configure-ca.ps1; Remove-Item wsl-configure-ca.ps1"
 ```
 
 ### Install
@@ -15,7 +15,7 @@ powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri https://gith
 ```bash
 git clone https://github.com/Spartan0nix/dotfiles.git
 cd dotfiles
-sh install.sh
+bash install.sh
 ```
 
 ## Post install

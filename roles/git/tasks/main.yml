@@ -1,6 +1,5 @@
----
 - name: Install packages
-  package:
+  ansible.builtin.package: # noqa : package-latest
     name:
       - git
     state: latest
@@ -27,12 +26,13 @@
     value: false
 
 - name: Create user ssh folder
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ssh"
     state: directory
+    mode: 0754
 
 - name: Check if a ssh keys pair already exist
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.ssh/id_git"
   register: ssh_keys
 
@@ -40,24 +40,25 @@
   community.crypto.openssh_keypair:
     path: "{{ ansible_user_dir }}/.ssh/id_git"
     type: ed25519
-    comment: "{{ git_email }}"
+    # comment: "{{ git_email }}"
   when: not ssh_keys.stat.exists
 
 - name: Check if ssh config file exist
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.ssh/config"
   register: ssh_config
 
 - name: Create ssh config file
-  file:
+  ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ssh/config"
     state: touch
+    mode: 0644
   when: not ssh_config.stat.exists
 
 - name: Add default ssh config (example, github, gitlab)
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.ssh/config"
-    marker:  "{mark} ANSIBLE MANAGED BLOCK\n"
+    marker: "{mark} ANSIBLE MANAGED BLOCK\n"
     marker_begin: "\n# BEGIN"
     marker_end: "\n# END"
     block: |

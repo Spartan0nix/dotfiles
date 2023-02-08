@@ -1,0 +1,11 @@
+- name: Add Docker service documentation (bash)
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    insertbefore: '^# BEGIN DOCKER SERVICE ANSIBLE MANAGED BLOCK'
+    line: "\n# Automatically start the service if not running when starting a new session"
+
+- name: Add Docker service documentation (zsh)
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    insertbefore: '^# BEGIN DOCKER SERVICE ANSIBLE MANAGED BLOCK'
+    line: "\n# Automatically start the service if not running when starting a new session"

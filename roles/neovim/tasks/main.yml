@@ -1,68 +1,20 @@
----
 - name: Install requirements
-  package:
+  ansible.builtin.package: # noqa package-latest
     name:
       - xclip
       - git
     state: latest
   become: true
 
-- include_tasks: setup_debian.yml
+- name: Install for Debian
+  ansible.builtin.include_tasks: setup_debian.yml
   when: CURRENT_DISTRO == "Debian"
 
 - name: Checking for previous config
-  stat:
+  ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.config/nvim"
   register: nvim_config
 
-- name: Create nvim directory
-  file:
-    path: "{{ ansible_user_dir }}/.config/nvim"
-    state: directory
+- name: Setup config
+  ansible.builtin.include_tasks: setup_config.yml
   when: not nvim_config.stat.exists
-
-- name: Copy init file
-  copy:
-    dest: "{{ ansible_user_dir }}/.config/nvim/init.vim"
-    src: "init.vim"
-  when: not nvim_config.stat.exists
-
-- name: Copy configuration directory
-  copy:
-    dest: "{{ ansible_user_dir }}/.config/nvim/lua"
-    src: "lua/"
-  when: not nvim_config.stat.exists
-
-- name: Create vim-plug dir
-  file:
-    path: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload"
-    state: directory
-  when: not nvim_config.stat.exists
-
-- name: Install vim-plug
-  get_url:
-    url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    dest: "{{ ansible_user_dir }}/.local/share/nvim/site/autoload/plug.vim"
-  when: not nvim_config.stat.exists
-
-- name: Install pynvim
-  pip:
-    name: pynvim
-  become: true
-
-- name: Install neovim node modules
-  npm:
-    name: neovim
-    global: yes
-  become: true
-
-- include_tasks: setup_lsp.yml
-
-- name: Download A Font icons
-  get_url:
-    url: https://github.com/yamatsum/nonicons/raw/master/dist/nonicons.ttf
-    dest: "{{ ansible_user_dir }}/.local/share/fonts/a-font-nonicons.ttf"
-  
-- name: Reload font cache
-  shell: |
-    fc-cache -f
