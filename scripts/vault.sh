@@ -32,12 +32,12 @@ if [[ ! -f $VAULT_PATH ]]; then
     # Add git_username
     echo "Enter git username :"
     read git_username
-    ansible-vault encrypt_string $git_username --name "git_username" --vault-password-file $VAULT_PASSWORD_PATH >> $VAULT
+    ansible-vault encrypt_string $git_username --name "git_username" --vault-password-file $VAULT_PASSWORD_PATH >> $VAULT_PATH
 
     # Add git_email
     echo "Enter git email :"
     read git_email
-    ansible-vault encrypt_string $git_email --name "git_email" --vault-password-file $VAULT_PASSWORD_PATH >> $VAULT
+    ansible-vault encrypt_string $git_email --name "git_email" --vault-password-file $VAULT_PASSWORD_PATH >> $VAULT_PATH
 
     echo "Encrypting vault"
     ansible-vault encrypt vault.yml --vault-password-file $VAULT_PASSWORD_PATH
