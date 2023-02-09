@@ -98,7 +98,7 @@ def run_module():
 
 
     # Build the URL to get the latest release
-    url = "https://api.github.com/repos/{}/{}/releases/latest".format(module.params['repo_owner'], module.params['repo_name'])
+    url = f"https://api.github.com/repos/{module.params['repo_owner']}/{module.params['repo_name']}/releases/latest"
     # Execute the request
     r = requests.get(url)
     # Handle the response as json
@@ -106,17 +106,18 @@ def run_module():
     
     # Check if a 404 Not Found response was returned
     if r.status_code == 404:
-        module.fail_json(msg="The requested URL '{}' was not found".format(url), **result)
+        module.fail_json(msg=f"The requested URL '{url}' was not found", **result)
 
     # Check if a not found response was returned without a 404 reponse code
     if 'message' in latest_request:
         if latest_request['message'] == 'Not Found':
-                module.fail_json(msg="The requested URL '{}' was not found".format(url), **result)
+                module.fail_json(msg=f"The requested URL '{url}' was not found", **result)
     
     # Retrieve the release version
     release_version = latest_request['tag_name']
 
     # Parse the different assets of the release
+    assets_left = len(latest_request['assets'])
     release_assets = latest_request['assets']
     for asset in release_assets:
         # Search for the desired asset
@@ -125,7 +126,12 @@ def run_module():
             result['found'] = True
             result['version'] = release_version
             break
+        else:
+            assets_left -= 1
 
+    if assets_left == 0 and result['url'] == "":
+        module.fail_json(msg=f"No asset with the name {module.params['asset_name']} was found", **result)
+        
     # Return the response
     module.exit_json(**result)
 
