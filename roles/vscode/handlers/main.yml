@@ -1,5 +1,5 @@
 - name: Add vscode path documentation
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
+    insertbefore: '^PATH=\$PATH.+Code/bin'
     line: "\n# Add windows host vscode binairy to PATH"

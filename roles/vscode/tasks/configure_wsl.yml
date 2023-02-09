@@ -1,13 +1,3 @@
-# FIX :
-# WSL_CODE_PATH not correctly detected, possibily to ansible espacing \ -> \\
-# ----------
-# Exemple :
-# ----------
-# PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"
-# PATH=$PATH:/mnt/c/Users/Léo/AppData/Local/Programs/Microsoft\ VS\ Code/bin
-#
-# # Add windows host vscode binairy to PATH
-#
 - name: Add vscode path
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
