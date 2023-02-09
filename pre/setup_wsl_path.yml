@@ -1,9 +1,3 @@
-- name: Create .path file
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/.path"
-    state: touch
-    mode: 0750
-
 - name: Update default PATH
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"

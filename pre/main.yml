@@ -29,8 +29,16 @@
   ansible.builtin.set_fact:
     CURRENT_DISTRO: "{{ distro_facts.ansible_facts.ansible_distribution }}"
 
-# TODO - Update an switch to script block instead of custom module
-# - include_tasks: extract_vscode_path.yml
-#   when: ('WSL_DISTRO_NAME' in ansible_env)
+- name: Extract vscode host path for WSL
+  ansible.builtin.include_tasks: extract_vscode_path.yml
+  when: ('WSL_DISTRO_NAME' in ansible_env)
 
-- include_tasks: setup_path.yml
+- name: Create .path file
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.path"
+    state: touch
+    mode: 0750
+
+- name: Update default PATH for WSL
+  ansible.builtin.include_tasks: setup_wsl_path.yml
+  when: ('WSL_DISTRO_NAME' in ansible_env)

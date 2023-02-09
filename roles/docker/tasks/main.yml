@@ -14,4 +14,4 @@
 
 - name: Configure for WSL
   ansible.builtin.include_tasks: setup_wsl.yml
-  # when: ('WSL_DISTRO_NAME' in ansible_env)
+  when: ('WSL_DISTRO_NAME' in ansible_env)

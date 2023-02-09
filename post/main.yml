@@ -12,6 +12,37 @@
     insertbefore: '^source ~/.path'
     line: "\n# Source file containing path update"
   when: bashrc_update.changed
+
+- name: Add function cdw to bashrc
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    marker_begin: BEGIN CDW
+    marker_end: END CDW
+    block: |
+      function cdw() {
+          if [[ $# -ge 1 ]]; then
+              converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
+              cd_target="/mnt/${converted_path}"
+              if [[ $2 == "--print" ]]; then
+                echo $cd_target
+              else
+                cd $cd_target
+              fi
+          else
+              echo "Missing required Windows path"
+          fi
+          unset converted_path
+          unset cd_target
+      }
+  register: cdw_bashrc
+  when: ('WSL_DISTRO_NAME' in ansible_env)
+
+- name: Add space before cdw function in bashrc
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.bashrc"
+    insertbefore: "# BEGIN CDW ANSIBLE MANAGED BLOCK"
+    line: "\n# Convert a Windows PATH to a linux PATH before executin 'cd'"
+  when: cdw_bashrc.changed
 # ----------------------------------------------
 
 # ----------------------------------------------
@@ -29,45 +60,15 @@
     insertbefore: '^source ~/.path'
     line: "\n# Source file containing path update"
   when: zshrc_update.changed
-# ----------------------------------------------
-
-- name: Add function cdw to bashrc
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    block: |
-      # Convert a Windows PATH to a linux PATH before executin 'cd'
-      function cdw() {
-          if [[ $# -gt 1 ]]; then
-              converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
-              cd_target="/mnt/${converted_path}"
-              if [[ $2 == "--print" ]]; then
-                echo $cd_target
-              else
-                cd $cd_target
-              fi
-          else
-              echo "Missing required Windows path"
-          fi
-          unset converted_path
-          unset cd_target
-      }
-  when: ('WSL_DISTRO_NAME' in ansible_env)
-  register: cdw_bashrc
-
-- name: Add space before cdw function in bashrc
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    insertbefore: "# Convert a Windows PATH to a linux PATH before executin 'cd'"
-    line: ""
-  when: cdw_bashrc.changed
 
 - name: Add function cdw to zshrc
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
+    marker_begin: BEGIN CDW
+    marker_end: END CDW
     block: |
-      # Convert a Windows PATH to a linux PATH before executin 'cd'
       function cdw() {
-          if [ $# -gt 1 ]; then
+          if [ $# -ge 1 ]; then
               converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
               cd_target="/mnt/${converted_path}"
               if [ "$2" = "--print" ]; then
@@ -81,12 +82,13 @@
           unset converted_path
           unset cd_target
       }
-  when: ('WSL_DISTRO_NAME' in ansible_env)
   register: zsh_bashrc
+  when: ('WSL_DISTRO_NAME' in ansible_env)
 
 - name: Add space before cdw function in zshrc
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
-    insertbefore: "# Convert a Windows PATH to a linux PATH before executin 'cd'"
-    line: ""
+    insertbefore: "# BEGIN CDW ANSIBLE MANAGED BLOCK"
+    line: "\n# Convert a Windows PATH to a linux PATH before executin 'cd'"
   when: zsh_bashrc.changed
+# ----------------------------------------------

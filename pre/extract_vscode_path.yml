@@ -1,9 +1,18 @@
-# TODO
-# - name: Retrieve host PATH if running WSL
-#   get_vscode_path:
-#   register: windows_host_path
+- name: Retrieve host PATH if running WSL
+  ansible.builtin.shell: |
+    IFS=:
+    re=Microsoft\ VS\ Code\/bin
+    for el in $PATH
+    do
+      if [[ "$el" =~ $re ]]
+      then
+        echo $el | sed 's/ /\\ /g'
+      fi
+    done
+  args:
+    executable: /bin/bash
+  register: windows_host_path
 
-# - name: Set fact for VSCODE_PATH
-#   set_fact:
-#     WSL_VSCODE_PATH: "{{ windows_host_path.path }}"
-#   when: windows_host_path.found
+- name: Set fact for VSCODE_PATH
+  ansible.builtin.set_fact:
+    WSL_VSCODE_PATH: "{{ windows_host_path.stdout }}"
