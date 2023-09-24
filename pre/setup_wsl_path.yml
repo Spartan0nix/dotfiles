@@ -1,5 +1,16 @@
 - name: Update default PATH
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
-    regexp: '^PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"'
-    line: 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib"'
+    regexp: '^PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:\$HOME/local/bin/"'
+    line: 'PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:$HOME/local/bin/"'
+    insertbefore: "BOF"
+  register: wsl_path_update
+
+- name: Update default PATH (doc)
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^# Set default WSL PATH'
+    line: "\n# Set default WSL PATH"
+    insertbefore: '^PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:\$HOME/local/bin/"'
+  when: wsl_path_update.changed
+

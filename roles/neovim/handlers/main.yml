@@ -1,0 +1,6 @@
+- name: Add neovim binary to the path (doc)
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^PATH=\$PATH:\$HOME/.local/bin'
+    regexp: '^# Add neovim binary (installed using the AppImage version) to the PATH'
+    line: "\n# Add neovim binary (installed using the AppImage version) to the PATH"

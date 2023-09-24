@@ -1,9 +1,3 @@
-- name: Validate node prompt
-  ansible.builtin.assert:
-    that:
-      - node_version is regex("(latest|lts|[0-9]+(\.[0-9]+)?(\.[0-9]+)?)")
-    fail_msg: 'Node version should follow the given pattern "(latest|lts|[0-9]+(\.[0-9]+)?(\.[0-9]+)?)". Example : latest, lts, 18, 18.6, 18.6.0'
-
 - name: Install default packages
   ansible.builtin.package:
     name:
@@ -12,33 +6,24 @@
       - curl
       - net-tools
       - vim
+      - bash-completion
+      - wget
     state: latest
   become: true
-
-- name: Get Distro facts
-  ansible.builtin.setup:
-    gather_subset:
-      - 'architecture'
-      - 'distribution'
-      - 'distribution_major_version'
-      - 'distribution_release'
-      - 'distribution_version'
-  register: distro_facts
-
-- name: Set CURRENT_DISTRO fact
-  ansible.builtin.set_fact:
-    CURRENT_DISTRO: "{{ distro_facts.ansible_facts.ansible_distribution }}"
 
 - name: Extract vscode host path for WSL
   ansible.builtin.include_tasks: extract_vscode_path.yml
   when: ('WSL_DISTRO_NAME' in ansible_env)
 
-- name: Create .path file
+- name: Create '.path' file
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.path"
     state: touch
-    mode: 0750
+    mode: "0750"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
 
 - name: Update default PATH for WSL
   ansible.builtin.include_tasks: setup_wsl_path.yml
   when: ('WSL_DISTRO_NAME' in ansible_env)
+

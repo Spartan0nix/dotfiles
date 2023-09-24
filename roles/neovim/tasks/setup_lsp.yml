@@ -1,3 +1,4 @@
+---
 - name: Install requirements
   ansible.builtin.package: # noqa package-latest
     name:
@@ -21,7 +22,7 @@
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh
     dest: /tmp/tflint_install.sh
-    mode: 0740
+    mode: "0740"
 
 - name: Execute tflint install script
   ansible.builtin.command: /tmp/tflint_install.sh

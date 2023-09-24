@@ -1,0 +1,6 @@
+- name: Add k9s binary to the path (doc)
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    insertbefore: '^PATH=\$PATH:\$HOME/.local/bin'
+    regexp: '^# Add k9s binary configuration'
+    line: "\n# Add k9s binary configuration"

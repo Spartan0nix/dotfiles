@@ -1,94 +1,36 @@
-# ----------------------------------------------
+---
 - name: Include .path file in bashrc
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
-    regexp: '^source ~/.path'
-    line: 'source ~/.path'
-  register: bashrc_update
+    regexp: "^source ~/.path"
+    line: "source ~/.path"
+  register: path_bashrc
 
-- name: Add documentation for .path import in bashrc
+- name: Include .path file in bashrc (doc)
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
-    insertbefore: '^source ~/.path'
+    regexp: "# Source file containing path update"
     line: "\n# Source file containing path update"
-  when: bashrc_update.changed
+    insertbefore: "^source ~/.path"
+  when: path_bashrc.changed
 
-- name: Add function cdw to bashrc
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    marker_begin: BEGIN CDW
-    marker_end: END CDW
-    block: |
-      function cdw() {
-          if [[ $# -ge 1 ]]; then
-              converted_path=$(echo $1 | sed 's/C\:/c/' | sed 's/\\/\//g')
-              cd_target="/mnt/${converted_path}"
-              if [[ $2 == "--print" ]]; then
-                echo $cd_target
-              else
-                cd $cd_target
-              fi
-          else
-              echo "Missing required Windows path"
-          fi
-          unset converted_path
-          unset cd_target
-      }
-  register: cdw_bashrc
-  when: ('WSL_DISTRO_NAME' in ansible_env)
+- name: Check if '.zshrc' exists
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.zshrc"
+  register: zshrc_exist
 
-- name: Add space before cdw function in bashrc
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    insertbefore: "# BEGIN CDW ANSIBLE MANAGED BLOCK"
-    line: "\n# Convert a Windows PATH to a linux PATH before executin 'cd'"
-  when: cdw_bashrc.changed
-# ----------------------------------------------
-
-# ----------------------------------------------
 - name: Include .path file in zshrc
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
     regexp: '^source ~/.path'
-    line: 'source ~/.path'
-    create: true
-  register: zshrc_update
+    line: "source ~/.path"
+  register: path_zshrc
+  when: zshrc_exist.stat.exists
 
-- name: Add documentation for .path import in zshrc
+- name: Include .path file in zshrc (doc)
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
-    insertbefore: '^source ~/.path'
+    regexp: "# Source file containing path update"
     line: "\n# Source file containing path update"
-  when: zshrc_update.changed
-
-- name: Add function cdw to zshrc
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.zshrc"
-    marker_begin: BEGIN CDW
-    marker_end: END CDW
-    block: |
-      function cdw() {
-          if [ $# -ge 1 ]; then
-              converted_path=$(print -P '%{$1%}' | sed 's/C\:/c/' | sed 's/\\/\//g')
-              cd_target="/mnt/${converted_path}"
-              if [ "$2" = "--print" ]; then
-                echo $cd_target
-              else
-                cd $cd_target
-              fi
-          else
-              echo "Missing required Windows path"
-          fi
-          unset converted_path
-          unset cd_target
-      }
-  register: zsh_bashrc
-  when: ('WSL_DISTRO_NAME' in ansible_env)
-
-- name: Add space before cdw function in zshrc
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.zshrc"
-    insertbefore: "# BEGIN CDW ANSIBLE MANAGED BLOCK"
-    line: "\n# Convert a Windows PATH to a linux PATH before executin 'cd'"
-  when: zsh_bashrc.changed
-# ----------------------------------------------
+    insertbefore: "^source ~/.path"
+  when: path_zshrc.changed

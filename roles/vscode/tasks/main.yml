@@ -1,13 +1,19 @@
+---
 - name: Install for Debian
   ansible.builtin.include_tasks: setup_debian.yml
-  when: (CURRENT_DISTRO == "Debian") and ('WSL_DISTRO_NAME' not in ansible_env)
+  when: (ansible_distribution == "Debian") and ('WSL_DISTRO_NAME' not in ansible_env)
 
-- name: Install server
+- name: Install Vscode server only (for WSL)
   ansible.builtin.include_tasks: setup_server.yml
   when: ('WSL_DISTRO_NAME' in ansible_env)
 
-- name: Configure WSL
-  ansible.builtin.include_tasks: configure_wsl.yml
+- name: Add Windows host Vscode binairies to the path
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regex: '^PATH=\$PATH:{{ WSL_VSCODE_PATH }}'
+    line: "PATH=$PATH:{{ WSL_VSCODE_PATH }}"
+  notify:
+    - "Add Windows host Vscode binairies to the path (doc)"
   when: ('WSL_DISTRO_NAME' in ansible_env) and (WSL_VSCODE_PATH is defined)
 
 - name: Install extensions

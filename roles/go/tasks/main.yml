@@ -1,3 +1,4 @@
+---
 - name: Install requirements
   ansible.builtin.package: # noqa : package-latest
     name:
@@ -5,7 +6,7 @@
     state: latest
   become: true
 
-- name: Checking for previous Go install
+- name: Check for previous Go install
   ansible.builtin.stat:
     path: /usr/local/go
   register: go_install
@@ -17,6 +18,7 @@
   args:
     executable: /bin/bash
   register: go_tag
+  changed_when: go_tag.rc == 0
   when: not go_install.stat.exists
 
 - name: Unarchive Go binairies
@@ -27,22 +29,17 @@
   when: not go_install.stat.exists
   become: true
 
-- name: Add Go path
+- name: Add Go binairies to the path
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     regexp: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
-    line: 'PATH=$PATH:/usr/local/go/bin:$HOME/go/bin'
+    line: "PATH=$PATH:/usr/local/go/bin:$HOME/go/bin"
+  notify:
+    - "Add Go binairies to the path (doc)"
   when: not go_install.stat.exists
 
-- name: Add Go path documentation
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
-    line: "\n# Add Go binairies to PATH"
-  when: not go_install.stat.exists
-
-- name: Install Gopls
-  ansible.builtin.shell: |
-    export PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin
-    go install golang.org/x/tools/gopls@latest
+- name: Install gopls
+  ansible.builtin.command: /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
+  register: gopls_install
+  changed_when: gopls_install.rc == 0
   when: not go_install.stat.exists

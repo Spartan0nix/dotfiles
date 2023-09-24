@@ -1,8 +1,11 @@
+---
 - name: Copy ZSH user configuration
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: ".zshrc.j2"
     dest: "{{ ansible_user_dir }}/.zshrc"
-    src: .zshrc
-    mode: 0644
+    mode: "0640"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
 
 - name: Install ZSH plugin - syntax highlighting
   ansible.builtin.git: # noqa : latest

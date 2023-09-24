@@ -1,16 +1,25 @@
+---
 - name: Check previous NerdFont install
   ansible.builtin.stat:
-    path: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
+    path: "{{ ansible_user_dir }}/.local/share/fonts/CaskaydiaCoveNerdFontMono-Regular.ttf"
   register: nerd_font_install
 
 - name: Create NerdFont directory
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/share/fonts"
     state: directory
+    mode: "0700"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: not nerd_font_install.stat.exists
 
+# yamllint disable rule:line-length
 - name: Install NerdFont 'Caskaydia Cove Regular'
   ansible.builtin.get_url:
-    url: "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/CascadiaCode/Regular/complete/Caskaydia%20Cove%20Nerd%20Font%20Complete%20Regular.otf"
-    dest: "{{ ansible_user_dir }}/.local/share/fonts/Caskaydia-Cove-Regular-Nerd-Font-Complete.otf"
+    url: "https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/CascadiaCode/Regular/CaskaydiaCoveNerdFontMono-Regular.ttf"
+    dest: "{{ ansible_user_dir }}/.local/share/fonts/CaskaydiaCoveNerdFontMono-Regular.ttf"
+    mode: "0500"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: not nerd_font_install.stat.exists
+# yamllint enable

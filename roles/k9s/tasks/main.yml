@@ -1,9 +1,10 @@
+---
 - name: Check for previous k9s install
   ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.local/bin/k9s"
   register: k9s_install
 
-- name: Get download URL
+- name: Retrieve the binairies download URL
   github_release:
     repo_name: k9s
     repo_owner: derailed
@@ -11,11 +12,22 @@
   register: k9s_release
   when: not k9s_install.stat.exists
 
+- name: Update '.local' directory permissions
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.local"
+    state: directory
+    mode: "0700"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  when: not k9s_install.stat.exists
+
 - name: Create local binairies dir
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.local/bin"
     state: directory
-    mode: 0700
+    mode: "0700"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: not k9s_install.stat.exists
 
 - name: Download k9s binairies
@@ -37,31 +49,29 @@
     state: absent
   when: not k9s_install.stat.exists
 
-- name: Add k9s path
+- name: Add k9s binary to the path
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.path"
     regexp: '^PATH=\$PATH:\$HOME/.local/bin'
-    line: 'PATH=$PATH:$HOME/.local/bin'
-  register: k9s_path
-  when: not k9s_install.stat.exists
-
-- name: Add k9s path documentation
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH:\$HOME/.local/bin'
-    line: "\n# Add k9s binairies to PATH"
+    line: "PATH=$PATH:$HOME/.local/bin"
+  notify:
+    - "Add k9s binary to the path (doc)"
   when: not k9s_install.stat.exists
 
 - name: Create config dir
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.config/k9s"
     state: directory
-    mode: 0755
+    mode: "0700"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: not k9s_install.stat.exists
 
 - name: Add k9s 'one-dark' skin
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/derailed/k9s/master/skins/one_dark.yml"
     dest: "{{ ansible_user_dir }}/.config/k9s/skin.yml"
-    mode: 0644
+    mode: "0500"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: not k9s_install.stat.exists

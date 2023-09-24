@@ -1,19 +1,25 @@
 - name: Install for Debian
   ansible.builtin.include_tasks: setup_debian.yml
-  when: CURRENT_DISTRO == "Debian"
+  when: ansible_distribution == "Debian"
 
 - name: Set bash completion
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
-    line: 'source <(kubectl completion bash)'
-    regexp: '^source <\(kubectl completion bash\)'
+    regexp: '^source \<\(kubectl completion bash\)'
+    line: "source <(kubectl completion bash)"
   notify:
-    - Add documentation for bash completion
+    - "Set bash completion (doc)"
+
+- name: Check if '.zshrc' exist
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.zshrc"
+  register: zshrc_file
 
 - name: Set zsh completion
   ansible.builtin.lineinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
-    line: 'source <(kubectl completion zsh)'
-    regexp: '^source <\(kubectl completion zsh\)'
+    regexp: '^source \<\(kubectl completion zsh\)'
+    line: "source <(kubectl completion zsh)"
   notify:
-    - Add documentation for zsh completion
+    - "Set zsh completion (doc)"
+  when: zshrc_file.stat.exists

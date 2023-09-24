@@ -1,0 +1,8 @@
+---
+localhost:
+# ----------------------------------------------
+# Use if remote deployment is required
+# ----------------------------------------------
+# remotemachines:
+#   hosts:
+#     - ip // dns

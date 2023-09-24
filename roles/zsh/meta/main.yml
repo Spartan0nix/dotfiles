@@ -1,12 +1,14 @@
 galaxy_info:
-  author: Spartan0nix
-  description: "Zsh install for dotfiles"
+  role_name: zsh
+  author: dev.humblole@gmail.com
+  description: ZSH dotfiles provisionning
   license: MIT
   min_ansible_version: "2.14"
   platforms:
     - name: Debian
       versions:
         - bullseye
+        - bookworm
 dependencies:
   - role: python
   - role: nerd_font

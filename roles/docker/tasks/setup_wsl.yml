@@ -1,23 +1,11 @@
-- name: Setup service autostart (bash)
+---
+- name: Setup service autostart
   ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.bashrc"
-    marker_begin: BEGIN DOCKER SERVICE
-    marker_end: END DOCKER SERVICE
+    path: "{{ ansible_user_dir }}/.path"
+    marker: "# {mark} WSL docker service automatic startup"
     block: |
       if service docker status 2>&1 | grep -q "is not running"; then
           /mnt/c/Windows/System32/wsl.exe -d "${WSL_DISTRO_NAME}" -u root -e /usr/sbin/service docker start >/dev/null 2>&1
       fi
   notify:
-    - Add Docker service documentation (bash)
-
-- name: Setup service autostart (zsh)
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.zshrc"
-    marker_begin: BEGIN DOCKER SERVICE
-    marker_end: END DOCKER SERVICE
-    block: |
-      if service docker status 2>&1 | grep -q "is not running"; then
-          /mnt/c/Windows/System32/wsl.exe -d "${WSL_DISTRO_NAME}" -u root -e /usr/sbin/service docker start >/dev/null 2>&1
-      fi
-  notify:
-    - Add Docker service documentation (zsh)
+    - "Setup service autostart (doc)"

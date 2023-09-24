@@ -1,12 +1,13 @@
-- name: Retrieve host PATH if running WSL
+---
+- name: Retrieve vscode binairies path from the PATH
   ansible.builtin.shell: |
     IFS=:
     re=Microsoft\ VS\ Code\/bin
-    for el in $PATH
+    for entry in $PATH
     do
-      if [[ "$el" =~ $re ]]
+      if [[ "$entry" =~ $re ]]
       then
-        echo $el | sed 's/ /\\ /g'
+        echo $entry | sed 's/ /\\ /g'
       fi
     done
   args:

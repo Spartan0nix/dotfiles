@@ -1,14 +1,45 @@
+---
 - name: Install requirements
   ansible.builtin.package: # noqa package-latest
     name:
       - xclip
       - git
+      - fontconfig
+      - fuse
     state: latest
   become: true
 
-- name: Install for Debian
-  ansible.builtin.include_tasks: setup_debian.yml
-  when: CURRENT_DISTRO == "Debian"
+- name: Check previous neovim install
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.local/bin/nvim"
+  register: neovim_install
+
+- name: Get download URL (AppImage version)
+  github_release:
+    repo_name: neovim
+    repo_owner: neovim
+    asset_name: nvim.appimage
+  register: neovim_dl_url
+  when: not neovim_install.stat.exists
+
+- name: Download binary (AppImage version)
+  ansible.builtin.get_url:
+    url: "{{ neovim_dl_url.url }}"
+    checksum: "sha256:{{ neovim_dl_url.url }}.sha256sum"
+    dest: "{{ ansible_user_dir }}/.local/bin/nvim"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "0500"
+  when: not neovim_install.stat.exists
+
+- name: Add neovim binary to the path
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.path"
+    regexp: '^PATH=\$PATH:\$HOME/.local/bin'
+    line: "PATH=$PATH:$HOME/.local/bin"
+  notify:
+    - "Add neovim binary to the path (doc)"
+  when: not neovim_install.stat.exists
 
 - name: Checking for previous config
   ansible.builtin.stat:

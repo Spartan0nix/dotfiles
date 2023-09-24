@@ -38,3 +38,8 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+
+{% if 'kubectl' in ansible_role_names %}
+# Enable kubectl zsh autocompletion
+source <(kubectl completion zsh)
+{% endif %}

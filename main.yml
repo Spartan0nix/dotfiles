@@ -1,5 +1,7 @@
-- name: Spartan0nix dotfiles
-  hosts: targetmachines
+- name: Dotfiles provisionning
+  hosts:
+    - localhost
+    - remotemachines
   vars:
     vscode_extensions:
       - redhat.ansible
@@ -11,21 +13,18 @@
       - mhutchie.git-graph
       - jebbs.plantuml
       - hashicorp.terraform
-
   vars_prompt:
     - name: node_version
       prompt: Which version of node would you like to install ?
       default: "lts"
-
+      private: false
   pre_tasks:
     - name: Run pre tasks
       ansible.builtin.include_tasks: pre/main.yml
   post_tasks:
     - name: Run post tasks
       ansible.builtin.include_tasks: post/main.yml
-
   roles:
-    - zsh
     - bottom
     - docker
     - gcloud
@@ -34,16 +33,9 @@
     - k9s
     - kubectl
     - neovim
+    - nerd_font
+    - node
+    - python
+    - terraform
     - vscode
-    # --------------------
-    # Installed with zsh
-    # - python
-    # - nerd_font
-    # --------------------
-    # Installed with neovim
-    # - node
-    # - terraform
-    # --------------------
-
-# For WSL
-# when: ('WSL_DISTRO_NAME' in ansible_env)
+    - zsh

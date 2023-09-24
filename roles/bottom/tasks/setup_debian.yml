@@ -13,11 +13,13 @@
   register: bottom_dl_url
   when: bottom_install.rc == 1
 
-- name: Download source
+- name: Download deb package
   ansible.builtin.get_url:
     url: "{{ bottom_dl_url.url }}"
     dest: /tmp/bottom_amd64.deb
-    mode: 0750
+    mode: "0750"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
   when: bottom_install.rc == 1
 
 - name: Install deb package
@@ -26,7 +28,7 @@
   become: true
   when: bottom_install.rc == 1
 
-- name: Remove source
+- name: Remove deb package
   ansible.builtin.file:
     path: /tmp/bottom_amd64.deb
     state: absent
