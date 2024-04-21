@@ -1,0 +1,75 @@
+---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Get the version of k9s installed
+  ansible.builtin.set_fact:
+    k9s_version: "v{{ ansible_facts.packages['k9s'][0]['version'] }}"
+  when: '"k9s" in ansible_facts.packages'
+
+- name: Get the latest version of k9s
+  ansible.builtin.uri:
+    url: https://api.github.com/repos/derailed/k9s/releases/latest
+    return_content: true
+    method: GET
+  register: k9s_latest_raw
+
+- name: Extract the latest version of k9s
+  ansible.builtin.set_fact:
+    k9s_latest_version: "{{ k9s_latest_raw.json | community.general.json_query('tag_name') }}"
+
+- name: Install (debian)
+  ansible.builtin.include_tasks: debian.yml
+  when:
+    - ansible_os_family | lower == "debian"
+    - k9s_version is not defined or (k9s_version is defined and k9s_version != k9s_latest_version)
+
+- name: Generate the configuration directory
+  ansible.builtin.command: k9s info
+  register: k9s_info
+  changed_when: k9s_info.rc != 0
+  failed_when: k9s_info.rc != 0
+
+- name: Get k9s skins
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "{{ ansible_user_dir }}/.config/k9s/skins/{{ item.name }}.yaml"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+    mode: "0600"
+  loop:
+    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/nightfox.yaml
+      name: nightfox
+    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/everforest-dark.yaml
+      name: everforest-dark
+
+- name: Check if the configuration file exists
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+  register: k9s_config
+
+- name: Get the configuration file content
+  ansible.builtin.slurp:
+    src: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+  register: k9s_config_content
+  when: k9s_config.stat.exists
+
+- name: Update the skin used in the configuration file
+  ansible.builtin.copy:
+    content: "{{ current_config | combine(skin_config, recursive=True) | to_nice_yaml }}"
+    dest: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+  vars:
+    current_config: >
+      {{
+      k9s_config_content['content'] | b64decode | from_yaml
+      if 'skipped' not in k9s_config_content else
+      '{}' | from_yaml
+      }}
+    skin_config:
+      k9s:
+        ui:
+          skin: nightfox

@@ -1,0 +1,89 @@
+- name: Local development environment configuration
+  hosts: localhost
+  vars:
+    ansible_connection: local
+  vars_prompt:
+    - name: git_username
+      prompt: Username for the git configuration
+      private: false
+    - name: git_email
+      prompt: Email address of the git configuration
+      private: false
+    - name: nodejs_version
+      prompt: Version of nodejs to install
+      private: false
+      default: "lts"
+  pre_tasks:
+    # ---
+    - name: Install utils packages # noqa: package-latest
+      ansible.builtin.package:
+        name:
+          - git
+          - jq
+          - curl
+          - net-tools
+          - vim
+          - bash-completion
+          - wget
+        state: latest
+      become: true
+    # ---
+    - name: Configure the default PATH for WSL
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_user_dir }}/.common_shell_config"
+        create: true
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_gid }}"
+        mode: "0600"
+        marker: "# {mark} configure the default PATH for WSL"
+        append_newline: true
+        insertbefore: "BOF"
+        block: |
+          # Manually configure the PATH to prevent performance issue on WSL
+          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/local/bin/"
+      when: '"WSL_DISTRO_NAME" in ansible_env'
+  roles:
+    # ---
+    - role: zsh
+      zsh_set_as_default_shell: true
+    # ---
+    - role: docker
+      docker_run_on_wsl: true
+      docker_disable_tests: false
+    # ---
+    - role: go
+    # ---
+    - role: bottom
+    # ---
+    - role: python
+      python_cacert: /etc/ssl/certs/ca-certificates.crt
+    # ---
+    - role: git
+      git_platforms:
+        - github
+    # ---
+    - role: vscode
+      vscode_extensions:
+        - alexdima.copy-relative-path
+        - golang.go
+        - ms-python.debugpy
+        - ms-python.python
+        - ms-python.vscode-pylance
+        - redhat.ansible
+        - redhat.vscode-yaml
+        - akamud.vscode-theme-onedark
+        - pkief.material-icon-theme
+        - mhutchie.git-graph
+        - hashicorp.terraform
+    # ---
+    - role: nodejs
+    # ---
+    - role: terraform
+    # ---
+    - role: gcloud
+    # ---
+    - role: kubectl
+      kubectl_shell_completion:
+        - zsh
+    # ---
+    - role: k9s

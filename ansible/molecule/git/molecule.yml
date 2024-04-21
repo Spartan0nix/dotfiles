@@ -1,0 +1,48 @@
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+platforms:
+  - name: debian-bookworm
+    image: debian:bookworm
+    package_manager: apt
+  - name: debian-bookworm-no-platforms
+    image: debian:bookworm
+    package_manager: apt
+  - name: debian-bullseye
+    image: debian:bullseye
+    package_manager: apt
+
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      molecule:
+        hosts:
+          debian-bookworm:
+          debian-bullseye:
+          debian-bookworm-no-platforms:
+            git_platforms: []
+        vars:
+          ansible_connection: community.docker.docker
+          ansible_become_method: su
+          git_email: test@example.com
+          git_username: test_user
+          git_platforms:
+            - gitlab
+            - github
+          git_ssh_key_algorithm: ed25519
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - destroy
+          

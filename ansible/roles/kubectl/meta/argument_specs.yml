@@ -1,0 +1,15 @@
+argument_specs:
+  main:
+    short_description: Install and configure Kubectl
+    author: Spartan0nix
+    options:
+      kubectl_shell_completion:
+        type: list
+        elements: str
+        required: false
+        default:
+          - bash
+        choices:
+          - bash
+          - zsh
+        description: The list of shell to configure auto completion for.

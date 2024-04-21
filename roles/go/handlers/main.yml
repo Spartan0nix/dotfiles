@@ -1,6 +1,0 @@
-- name: Add Go binairies to the path (doc)
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH:/usr/local/go/bin:\$HOME/go/bin'
-    regexp: '^# Add Go binairies configuration'
-    line: "\n# Add Go binairies configuration"

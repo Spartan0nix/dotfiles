@@ -1,0 +1,11 @@
+argument_specs:
+  main:
+    short_description: Install and configure vscode on a linux distribution
+    author: Spartan0nix
+    options:
+      vscode_extensions:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description: The list of vscode extensions to install

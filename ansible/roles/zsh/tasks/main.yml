@@ -1,0 +1,63 @@
+---
+- name: Install packages
+  ansible.builtin.package: # noqa: package-latest
+    name:
+      - zsh
+      - git
+      - python3-pexpect
+    state: latest
+  become: true
+
+- name: Check existing oh-my-zsh installation
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.oh-my-zsh"
+  register: ohmyzsh_install
+
+- name: Get the oh-my-zsh installation script
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+    dest: /tmp/ohmyzsh_install.sh
+    mode: "0640"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+  when: not ohmyzsh_install.stat.exists
+
+- name: Execute the installation script
+  ansible.builtin.expect:
+    command: /bin/bash /tmp/ohmyzsh_install.sh
+    responses:
+      (?i)Do you want to change your default shell to zsh: "{{ 'y' if zsh_set_as_default_shell else 'n' }}"
+  register: zsh_script
+  changed_when: zsh_script.rc == 0 or zsh_script.rc == 1
+  failed_when: zsh_script.rc != 0 and zsh_script.rc != 1
+  when: not ohmyzsh_install.stat.exists
+
+- name: Remove the installation script
+  ansible.builtin.file:
+    path: /tmp/ohmyzsh_install.sh
+    state: absent
+  when: not ohmyzsh_install.stat.exists
+
+- name: Copy ZSH configuration
+  ansible.builtin.copy:
+    src: ".zshrc"
+    dest: "{{ ansible_user_dir }}/.zshrc"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    backup: true
+
+- name: Install ZSH plugin
+  ansible.builtin.git:
+    repo: "{{ item.src }}"
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh//plugins/{{ item.name }}"
+    version: master
+  loop:
+    - name: zsh-syntax-highlighting
+      src: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    - name: zsh-autosuggestions
+      src: https://github.com/zsh-users/zsh-autosuggestions.git
+    - name: zsh-history-substring-search
+      src: https://github.com/zsh-users/zsh-history-substring-search.git
+    - name: zsh-completions
+      src: https://github.com/zsh-users/zsh-completions.git

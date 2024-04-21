@@ -1,34 +1,57 @@
 #!/bin/bash
 
-# Remove default system bell sound
-echo "[info] disabling bell notification"
+# Exit on error
+set -e
+
+# Function used to cleanup sources before exiting when an error occures
+function cleanup() {
+    echo -e "[info] cleaning up before exiting"
+    if [[ -d "$HOME/.ansible-dotfiles" ]]
+    then
+        rm -r "$HOME/.ansible-dotfiles"
+    fi
+}
+
+# Function used to setup the system (Debian)
+function setup_debian() {
+    echo -e "\n[info] upgrading the system"
+    sudo apt-get update
+    sudo apt-get upgrade -y
+
+    echo -e "\n[info] installing requirements"
+    sudo apt-get install -y ansible git
+}
+
+# Cleanup on error
+trap cleanup ERR
+
+echo -e "\n[info] disabling bell notification"
 sudo sed -i 's/# set bell-style none/set bell-style none/' /etc/inputrc
 
-# Upgrade the system
-echo "[info] upgrading the system"
-sudo apt-get update
-sudo apt-get upgrade -y
-
-# Install ansible
-echo "[info] installing ansible"
-sudo apt-get install -y ansible
-
-# Update community general module
-echo "[info] installing ansible galaxy collection"
-ansible-galaxy collection install -r requirements.yml
-
-# Check if the ansible vault exist
-if [[ ! -f vault.yml  ]]; then
-    bash scripts/vault.sh
+os_release=$(cat /etc/os-release | grep "^ID" | sed 's/ID=//')
+if [[ $os_release == "debian" ]]
+then
+    echo -e "\n[info] current distribution identified as 'debian'"
+    setup_debian
+else
+    echo -e "\n[error] unsupported distribution '$os_release'"
+    echo "[info] supported distributions: 'debian'"
+    exit 1
 fi
 
-VAULT_PASSWORD_PATH=$HOME/.config/dotfiles/vault_password.txt
-# Run ansible playbook
-ansible-playbook --private-key ~/.ssh/id_ansible_dotfiles \
-    --ask-become-pass \
-    --vault-password-file $VAULT_PASSWORD_PATH \
-    -e @vault.yml \
-    main.yml
+echo -e "\n[info] cloning the Git repository"
+mkdir "$HOME/.ansible-dotfiles"
+git clone https://github.com/Spartan0nix/dotfiles.git "$HOME/.ansible-dotfiles"
+cd "$HOME/.ansible-dotfiles"
+
+echo "[info] installing ansible galaxy collections"
+ansible-galaxy collection install -r ansible/requirements.yml
+
+echo "[info] running the playbook"
+ansible-playbook --ask-become-pass ansible/main.yml
+
+cd $HOME
+
+cleanup()
 
 exit 0
-

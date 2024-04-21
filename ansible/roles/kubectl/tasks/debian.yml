@@ -1,0 +1,56 @@
+---
+- name: Install requirements
+  ansible.builtin.package: # noqa: package-latest
+    name:
+      - apt-transport-https
+      - ca-certificates
+    state: latest
+  become: true
+
+- name: Check the presence of the APT repo
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/kubernetes.list
+  register: kubernetes_apt
+
+- name: Remove the previous APT configuration
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/apt/sources.list.d/kubernetes.list
+    - /usr/share/keyrings/kubernetes.asc
+  become: true
+  when: kubernetes_apt.stat.exists
+
+- name: Get the GPG key # noqa: risky-file-permissions
+  ansible.builtin.get_url:
+    url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_latest_version }}/deb/Release.key"
+    dest: /tmp/kubernetes.asc
+  delegate_to: 127.0.0.1
+
+- name: Copy the GPG key to the server
+  ansible.builtin.copy:
+    src: /tmp/kubernetes.asc
+    dest: /usr/share/keyrings/kubernetes.asc
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Remove the GPG key from the local machine
+  ansible.builtin.file:
+    path: /tmp/kubernetes.asc
+    state: absent
+  delegate_to: 127.0.0.1
+
+- name: Add the APT repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb
+      [arch=amd64 signed-by=/usr/share/keyrings/kubernetes.asc]
+      https://pkgs.k8s.io/core:/stable:/{{ kubernetes_latest_version }}/deb/
+      /
+    filename: kubernetes
+    state: present
+    update_cache: true
+  become: true

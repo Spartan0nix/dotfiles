@@ -1,6 +1,0 @@
-- name: Add Windows host Vscode binairies to the path (doc)
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^PATH=\$PATH.+Code/bin'
-    regexp: '^# Add windows host vscode binairy to PATH'
-    line: "\n# Add windows host vscode binairy to PATH"

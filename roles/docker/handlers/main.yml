@@ -1,6 +1,0 @@
-- name: Setup service autostart (doc)
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_user_dir }}/.path"
-    insertbefore: '^# BEGIN WSL docker service automatic startup'
-    regexp: "# Automatically start the service if not running when starting a new session"
-    line: "\n# Automatically start the service if not running when starting a new session"

@@ -1,0 +1,61 @@
+---
+- name: Check exisiting vscode-server installation
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.vscode-server"
+  register: vscode_server_install
+
+- name: Get the installation script
+  ansible.builtin.get_url:
+    url: https://aka.ms/install-vscode-server/setup.sh
+    dest: /tmp/vscode-server-install.sh
+    mode: "0600"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+  when: not vscode_server_install.stat.exists
+
+- name: Execute the installation script
+  ansible.builtin.command: /bin/bash /tmp/vscode-server-install.sh
+  register: vscode_server_script
+  changed_when: vscode_server_script.rc != 0
+  failed_when: vscode_server_script.rc != 0
+  when: not vscode_server_install.stat.exists
+
+- name: Remove the installation script
+  ansible.builtin.file:
+    path: /tmp/vscode-server-install.sh
+    state: absent
+  when: not vscode_server_install.stat.exists
+
+- name: Get vscode binaires from the Windows host
+  ansible.builtin.command: >
+    /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+    -ExecutionPolicy Bypass
+    "(Get-Command Code).Path"
+  register: vscode_host_bin_path
+  changed_when: vscode_host_bin_path.rc != 0
+  failed_when: vscode_host_bin_path.rc != 0
+
+- name: Convert the Windows path
+  ansible.builtin.command: 'wslpath "{{ vscode_host_bin_path.stdout }}"'
+  register: vscode_bin_path
+  changed_when: vscode_bin_path.rc != 0
+  failed_when: vscode_bin_path.rc != 0
+  when: vscode_host_bin_path.stdout != ""
+
+- name: Add Windows host vscode binairies to the path
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.common_shell_config"
+    create: true
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} Windows host vscode binairies configuration"
+    append_newline: true
+    prepend_newline: true
+    block: |
+      export PATH="$PATH:{{ vscode_bin }}"
+  vars:
+    # Remove the binairy at the end of the path '/code.cmd'
+    # Espace whitespaces in the path
+    vscode_bin: "{{ vscode_bin_path.stdout | replace('/code.cmd', '') | replace(' ', '\\ ') }}"
+  when: vscode_host_bin_path.stdout != ""

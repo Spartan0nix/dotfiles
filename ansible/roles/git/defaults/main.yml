@@ -1,0 +1,4 @@
+---
+git_platforms: []
+git_ssh_key_algorithm: ed25519
+git_ssh_key_size: 4096

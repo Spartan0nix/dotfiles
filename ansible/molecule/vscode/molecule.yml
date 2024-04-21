@@ -1,0 +1,52 @@
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+platforms:
+  - name: debian-bookworm
+    image: debian:bookworm
+    package_manager: apt
+  - name: debian-bullseye
+    image: debian:bullseye
+    package_manager: apt
+  - name: debian-bookworm-wsl
+    image: debian:bookworm
+    package_manager: apt
+  - name: debian-bullseye-wsl
+    image: debian:bullseye
+    package_manager: apt
+
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      molecule:
+        hosts:
+          debian-bookworm:
+            run_on_wsl: false
+          debian-bullseye:
+            run_on_wsl: false
+          debian-bookworm-wsl:
+            run_on_wsl: true
+          debian-bullseye-wsl:
+            run_on_wsl: true
+        vars:
+          ansible_connection: community.docker.docker
+          ansible_become_method: su
+          vscode_extensions:
+            - alexdima.copy-relative-path
+            - golang.go
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - destroy
+          

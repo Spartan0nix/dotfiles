@@ -1,0 +1,35 @@
+---
+- name: Install packages
+  ansible.builtin.package: # noqa package-latest
+    name:
+      - python3
+      - python3-pip
+    state: latest
+  become: true
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Get the version of Python installed
+  ansible.builtin.set_fact:
+    python_version: "{{ python_full_version | regex_search('^[3]\\.[0-9]+') }}"
+  vars:
+    python_full_version: "{{ ansible_facts.packages['python3'][0]['version'] }}"
+
+- name: Remove python 'EXTERNALLY-MANAGED' flag
+  ansible.builtin.file:
+    path: "/usr/lib/python{{ python_version }}/EXTERNALLY-MANAGED"
+    state: absent
+  become: true
+
+- name: Configure custom ca certificate
+  ansible.builtin.include_tasks: cacert.yml
+  when: python_cacert is defined and python_cacert != ""
+
+- name: Update pip # noqa: package-latest
+  ansible.builtin.pip:
+    name: pip
+    state: latest
+
+# python3 -c "import ssl; print(ssl.get_default_verify_paths())"

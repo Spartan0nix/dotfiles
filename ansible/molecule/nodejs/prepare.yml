@@ -1,0 +1,15 @@
+- name: Create
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Install requirements (Debian)
+      community.docker.docker_container_exec:
+        container: "{{ item.name }}"
+        argv:
+          - "/bin/bash"
+          - "-c"
+          - >
+            apt-get update &&
+            apt-get install -y python3 python3-apt
+      loop: "{{ molecule_yml.platforms }}"
+      when: item.package_manager == "apt"

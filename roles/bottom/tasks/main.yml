@@ -1,3 +1,0 @@
-- name: Install Bottom for Debian
-  ansible.builtin.include_tasks: setup_debian.yml
-  when: ansible_distribution == "Debian"

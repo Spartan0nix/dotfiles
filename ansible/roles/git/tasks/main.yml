@@ -1,0 +1,67 @@
+---
+- name: Install packages
+  ansible.builtin.package: # noqa : package-latest
+    name:
+      - git
+    state: latest
+  become: true
+
+- name: Configure the user email
+  community.general.git_config:
+    name: user.email
+    scope: global
+    value: "{{ git_email }}"
+
+- name: Configure username
+  community.general.git_config:
+    name: user.name
+    scope: global
+    value: "{{ git_username }}"
+
+- name: Configure the default branch name
+  community.general.git_config:
+    name: init.defaultBranch
+    scope: global
+    value: main
+
+- name: Create a ssh folder
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.ssh"
+    state: directory
+    mode: "0700"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+
+- name: Generate an SSH keypair
+  community.crypto.openssh_keypair:
+    path: "{{ ansible_user_dir }}/.ssh/id_git_{{ item }}"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    regenerate: partial_idempotence
+    type: "{{ git_ssh_key_algorithm }}"
+    size: "{{ git_ssh_key_size }}"
+    comment: "{{ git_email }}"
+  loop: "{{ git_platforms }}"
+
+- name: Update the SSH config
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.ssh/config"
+    backup: true
+    create: true
+    append_newline: true
+    prepend_newline: true
+    mode: "0600"
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    block: |
+      # Host example.com
+          # PreferredAuthentications publickey
+          # IdentityFile ~/.ssh/id_rsa
+
+      {% for item in git_platforms %}
+      Host {{ item }}.com
+          PreferredAuthentications publickey
+          IdentityFile ~/.ssh/id_git_{{ item }}
+      {% endfor %}
+  when: git_platforms | length > 0
