@@ -21,7 +21,7 @@ Do not forget to source this file in your `.bashrc` or `.zshrc`.
 $HOME/.bashrc
 ---
 [...]
-if [[ -d ~/.common_shell_config ]]
+if [[ -f ~/.common_shell_config ]]
 then
     source ~/.common_shell_config
 fi
