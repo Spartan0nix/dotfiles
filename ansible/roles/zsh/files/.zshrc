@@ -130,9 +130,9 @@ setopt hist_ignore_space      # ignore commands that start with space
 setopt hist_verify            # show command with history expansion to user before running it
 
 # hide EOL sign ('%')
-# PROMPT_EOL_MARK=""
+PROMPT_EOL_MARK=""
 
-if [[ -d $HOME/.common_shell_config ]]
+if [[ -f "$HOME/.common_shell_config" ]]
 then
     source "$HOME/.common_shell_config"
 fi
