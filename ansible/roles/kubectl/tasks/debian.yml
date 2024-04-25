@@ -19,6 +19,7 @@
   loop:
     - /etc/apt/sources.list.d/kubernetes.list
     - /usr/share/keyrings/kubernetes.asc
+    - /etc/apt/preferences.d/kubernetes
   become: true
   when: kubernetes_apt.stat.exists
 
@@ -53,4 +54,13 @@
     filename: kubernetes
     state: present
     update_cache: true
+  become: true
+
+- name: Copy the APT preference configuration
+  ansible.builtin.copy:
+    src: apt-preference
+    dest: /etc/apt/preferences.d/kubernetes
+    owner: root
+    group: root
+    mode: "0644"
   become: true

@@ -1,0 +1,3 @@
+Package: kubectl
+Pin: origin pkgs.k8s.io 
+Pin-Priority: 900
