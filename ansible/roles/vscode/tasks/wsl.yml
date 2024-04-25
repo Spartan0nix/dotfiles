@@ -57,5 +57,5 @@
   vars:
     # Remove the binairy at the end of the path '/code.cmd'
     # Espace whitespaces in the path
-    vscode_bin: "{{ vscode_bin_path.stdout | replace('/code.cmd', '') | replace(' ', '\\ ') }}"
+    vscode_bin: "{{ vscode_bin_path.stdout | replace('/code.cmd', '') }}"
   when: vscode_host_bin_path.stdout != ""
