@@ -3,6 +3,9 @@
   vars:
     ansible_connection: local
   vars_prompt:
+    - name: ansible_become_password
+      prompt: Password of the ansible become user
+      private: true
     - name: git_username
       prompt: Username for the git configuration
       private: false
@@ -27,6 +30,13 @@
           - wget
         state: latest
       become: true
+      tags: always
+    # ---
+    - name: Install pip requirements # noqa: package-latest
+      ansible.builtin.pip:
+        name: jmespath
+        state: latest
+      tags: always
     # ---
     - name: Configure the default PATH for WSL
       ansible.builtin.blockinfile:
@@ -40,27 +50,35 @@
         insertbefore: "BOF"
         block: |
           # Manually configure the PATH to prevent performance issue on WSL
-          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/local/bin/"
+          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin/"
       when: '"WSL_DISTRO_NAME" in ansible_env'
+      tags: always
+    # ---
   roles:
     # ---
     - role: zsh
       zsh_set_as_default_shell: true
+      tags: zsh
     # ---
     - role: docker
       docker_run_on_wsl: true
       docker_disable_tests: false
+      tags: docker
     # ---
     - role: go
+      tags: go
     # ---
     - role: bottom
+      tags: bottom
     # ---
     - role: python
       python_cacert: /etc/ssl/certs/ca-certificates.crt
+      tags: python
     # ---
     - role: git
       git_platforms:
         - github
+      tags: git
     # ---
     - role: vscode
       vscode_extensions:
@@ -73,17 +91,25 @@
         - redhat.vscode-yaml
         - akamud.vscode-theme-onedark
         - pkief.material-icon-theme
-        - mhutchie.git-graph
+         - mhutchie.git-graph
         - hashicorp.terraform
+      tags: vscode
     # ---
     - role: nodejs
+      tags: nodejs
     # ---
     - role: terraform
+      tags: terraform
     # ---
     - role: gcloud
+      tags: gcloud
     # ---
     - role: kubectl
       kubectl_shell_completion:
         - zsh
+        - bash
+      tags: kubectl
     # ---
     - role: k9s
+      tags: k9s
+
