@@ -109,7 +109,7 @@ fi
 echo -e "\n[info] cloning the Git repository"
 mkdir "$HOME/.ansible-dotfiles"
 git clone https://github.com/Spartan0nix/dotfiles.git "$HOME/.ansible-dotfiles"
-#cd "$HOME/.ansible-dotfiles"
+cd "$HOME/.ansible-dotfiles"
 
 echo -e "\n[info] installing the required ansible galaxy collections"
 $HOME/.local/bin/ansible-galaxy collection install -r ansible/requirements.yml
@@ -121,7 +121,7 @@ tags=$(select_tags)
 echo -e "\n[info] running the playbook"
 $HOME/.local/bin/ansible-playbook --tags $tags ansible/main.yml
 
-#cd $HOME
+cd $HOME
 
 cleanup
 
