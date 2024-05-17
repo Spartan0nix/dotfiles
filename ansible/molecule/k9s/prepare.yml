@@ -1,4 +1,4 @@
-- name: Create
+- name: Prepare
   hosts: localhost
   gather_facts: false
   tasks:
