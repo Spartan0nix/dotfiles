@@ -51,7 +51,7 @@ function setup_debian() {
 
 # Function used to select the ansible tags
 function select_tags() {
-    local available_tags=("all" "zsh" "docker" "go" "bottom" "python" "git" "vscode" "nodejs" "terraform" "gcloud" "kubectl" "k9s")
+    local available_tags=("all" "zsh" "docker" "go" "bottom" "python" "git" "vscode" "nodejs" "terraform" "gcloud" "kubectl" "k9s" "helm")
 
     local menu_options=""
     for (( i=0; i < ${#available_tags[@]}; i++))

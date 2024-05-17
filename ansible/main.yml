@@ -78,6 +78,7 @@
     - role: git
       git_platforms:
         - github
+        - gitlab
       tags: git
     # ---
     - role: vscode
@@ -112,4 +113,6 @@
     # ---
     - role: k9s
       tags: k9s
-
+    # ---
+    - role: helm
+      tags: helm
