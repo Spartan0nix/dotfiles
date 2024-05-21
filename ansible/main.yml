@@ -116,3 +116,6 @@
     # ---
     - role: helm
       tags: helm
+    # ---
+    - role: ansible_dev
+      tags: ansible_dev

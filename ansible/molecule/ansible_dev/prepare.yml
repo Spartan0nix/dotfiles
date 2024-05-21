@@ -1,0 +1,24 @@
+- name: Prepare
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Install requirements (Debian)
+      community.docker.docker_container_exec:
+        container: "{{ item.name }}"
+        argv:
+          - "/bin/bash"
+          - "-c"
+          - |
+            apt-get update
+            apt-get install -y python3 python3-pip
+
+            python_version=$(python3 --version | sed 's/Python //' | cut -d "." -f "1,2")
+
+            if [[ -f "/usr/lib/python$python_version/EXTERNALLY-MANAGED" ]]
+            then
+              rm "/usr/lib/python$python_version/EXTERNALLY-MANAGED"
+            fi
+
+            pip install ansible
+      loop: "{{ molecule_yml.platforms }}"
+      when: item.package_manager == "apt"
