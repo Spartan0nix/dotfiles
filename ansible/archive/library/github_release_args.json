@@ -1,7 +1,0 @@
-{
-    "ANSIBLE_MODULE_ARGS": {
-        "repo_name": "neovim",
-        "repo_owner": "neovim",
-        "asset_name": "nvim-linux64.deb"
-    }
-}

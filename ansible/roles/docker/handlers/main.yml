@@ -1,6 +1,0 @@
----
-- name: Validate the installation
-  ansible.builtin.include_tasks: validate_install.yml
-  when:
-    - docker_disable_tests is not defined
-    - docker_disable_tests is defined and not docker_disable_tests

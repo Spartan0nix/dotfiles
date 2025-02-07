@@ -1,40 +1,18 @@
 ---
-- name: Install requirements
-  ansible.builtin.apt: # noqa : package-latest
-    name:
-      - gnupg
-      - software-properties-common
-    state: latest
-  become: true
-
 - name: Check the presence of the APT repo
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/hashicorp.list
   register: terraform_apt
 
-- name: Get the GPG key # noqa: risky-file-permissions
+- name: Retrieve the GPG key
   ansible.builtin.get_url:
     url: https://apt.releases.hashicorp.com/gpg
-    dest: /tmp/hashicorp.asc
-  when: not terraform_apt.stat.exists
-  delegate_to: 127.0.0.1
-
-- name: Copy the GPG key to the server
-  ansible.builtin.copy:
-    src: /tmp/hashicorp.asc
     dest: /usr/share/keyrings/hashicorp.asc
     owner: root
     group: root
     mode: "0644"
   when: not terraform_apt.stat.exists
   become: true
-
-- name: Remove the GPG key from the local machine
-  ansible.builtin.file:
-    path: /tmp/hashicorp.asc
-    state: absent
-  when: not terraform_apt.stat.exists
-  delegate_to: 127.0.0.1
 
 - name: Add the APT repository
   ansible.builtin.apt_repository:
@@ -47,5 +25,4 @@
     filename: hashicorp
     state: present
     update_cache: true
-  when: not terraform_apt.stat.exists
   become: true

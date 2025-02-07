@@ -10,15 +10,19 @@ platforms:
   - name: debian-bookworm
     image: debian:bookworm
     package_manager: apt
+    context: docker
   - name: debian-bullseye
     image: debian:bullseye
     package_manager: apt
+    context: docker
   - name: debian-bookworm-wsl
     image: debian:bookworm
     package_manager: apt
+    context: wsl
   - name: debian-bullseye-wsl
     image: debian:bullseye
     package_manager: apt
+    context: wsl
 
 provisioner:
   name: ansible
@@ -27,13 +31,9 @@ provisioner:
       molecule:
         hosts:
           debian-bookworm:
-            run_on_wsl: false
           debian-bullseye:
-            run_on_wsl: false
           debian-bookworm-wsl:
-            run_on_wsl: true
           debian-bullseye-wsl:
-            run_on_wsl: true
         vars:
           ansible_connection: community.docker.docker
           ansible_become_method: su
@@ -49,4 +49,3 @@ scenario:
     - converge
     - idempotence
     - destroy
-          

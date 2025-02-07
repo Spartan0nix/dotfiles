@@ -1,33 +1,26 @@
+---
 - name: Local development environment configuration
   hosts: localhost
-  vars:
-    ansible_connection: local
+  connection: local
   vars_prompt:
     - name: ansible_become_password
       prompt: Password of the ansible become user
       private: true
     - name: git_username
-      prompt: Username for the git configuration
+      prompt: Username of the git configuration
       private: false
     - name: git_email
       prompt: Email address of the git configuration
       private: false
-    - name: nodejs_version
-      prompt: Version of nodejs to install
-      private: false
-      default: "lts"
   pre_tasks:
     # ---
-    - name: Install utils packages # noqa: package-latest
+    - name: Import distro specific vars
+      ansible.builtin.include_vars: "{{ ansible_os_family | lower }}.yml"
+      tags: always
+    # ---
+    - name: Install global requirements # noqa: package-latest
       ansible.builtin.package:
-        name:
-          - git
-          - jq
-          - curl
-          - net-tools
-          - vim
-          - bash-completion
-          - wget
+        name: "{{ global_requirements_packages }}"
         state: latest
       become: true
       tags: always
@@ -42,10 +35,10 @@
       ansible.builtin.blockinfile:
         path: "{{ ansible_user_dir }}/.common_shell_config"
         create: true
-        owner: "{{ ansible_user_id }}"
+        owner: "{{ ansible_user_uid }}"
         group: "{{ ansible_user_gid }}"
         mode: "0600"
-        marker: "# {mark} configure the default PATH for WSL"
+        marker: "# {mark} WSL PATH configuration"
         append_newline: true
         insertbefore: "BOF"
         block: |
@@ -57,29 +50,56 @@
   roles:
     # ---
     - role: zsh
-      zsh_set_as_default_shell: true
+      zsh_default_shell: true
       tags: zsh
     # ---
+    - role: ansible_dev
+      tags: ansible_dev
+    # ---
     - role: docker
-      docker_run_on_wsl: true
-      docker_disable_tests: false
       tags: docker
     # ---
-    - role: go
-      tags: go
-    # ---
-    - role: bottom
-      tags: bottom
-    # ---
-    - role: python
-      python_cacert: /etc/ssl/certs/ca-certificates.crt
-      tags: python
+    - role: gcloud
+      tags: gcloud
     # ---
     - role: git
       git_platforms:
         - github
         - gitlab
       tags: git
+    # ---
+    - role: go
+      tags: go
+    # ---
+    - role: helm
+      tags: helm
+    # ---
+    - role: jq
+      tags: jq
+    # ---
+    - role: k9s
+      tags: k9s
+    # ---
+    - role: kubectl
+      kubectl_shell_completion:
+        - zsh
+        - bash
+      tags: kubectl
+    # ---
+    - role: nodejs
+      tags: nodejs
+    # ---
+    - role: opentofu
+      tags: opentofu
+    # ---
+    - role: python
+      tags: python
+    # ---
+    - role: terraform
+      tags: terraform
+    # ---
+    - role: trivy
+      tags: trivy
     # ---
     - role: vscode
       vscode_extensions:
@@ -92,30 +112,11 @@
         - redhat.vscode-yaml
         - akamud.vscode-theme-onedark
         - pkief.material-icon-theme
-         - mhutchie.git-graph
+        - mhutchie.git-graph
         - hashicorp.terraform
+        - shd101wyy.markdown-preview-enhanced
+        - bierner.markdown-mermaid
       tags: vscode
     # ---
-    - role: nodejs
-      tags: nodejs
-    # ---
-    - role: terraform
-      tags: terraform
-    # ---
-    - role: gcloud
-      tags: gcloud
-    # ---
-    - role: kubectl
-      kubectl_shell_completion:
-        - zsh
-        - bash
-      tags: kubectl
-    # ---
-    - role: k9s
-      tags: k9s
-    # ---
-    - role: helm
-      tags: helm
-    # ---
-    - role: ansible_dev
-      tags: ansible_dev
+    - role: yq
+      tags: yq

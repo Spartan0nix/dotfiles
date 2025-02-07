@@ -12,7 +12,7 @@
     scope: global
     value: "{{ git_email }}"
 
-- name: Configure username
+- name: Configure the username
   community.general.git_config:
     name: user.name
     scope: global
@@ -24,7 +24,7 @@
     scope: global
     value: main
 
-- name: Create a ssh folder
+- name: Create the ssh folder
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ssh"
     state: directory
@@ -32,9 +32,9 @@
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_gid }}"
 
-- name: Generate an SSH keypair
+- name: Generate SSH keypairs
   community.crypto.openssh_keypair:
-    path: "{{ ansible_user_dir }}/.ssh/id_git_{{ item }}"
+    path: "{{ ansible_user_dir }}/.ssh/id_git_{{ platform }}"
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
@@ -43,25 +43,24 @@
     size: "{{ git_ssh_key_size }}"
     comment: "{{ git_email }}"
   loop: "{{ git_platforms }}"
+  loop_control:
+    loop_var: platform
 
 - name: Update the SSH config
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.ssh/config"
     backup: true
     create: true
-    append_newline: true
-    prepend_newline: true
-    mode: "0600"
     owner: "{{ ansible_user_id }}"
     group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} Git platforms authentication configurations"
+    append_newline: true
+    prepend_newline: true
     block: |
-      # Host example.com
-          # PreferredAuthentications publickey
-          # IdentityFile ~/.ssh/id_rsa
-
-      {% for item in git_platforms %}
-      Host {{ item }}.com
+      {% for platform in git_platforms %}
+      Host {{ platform }}.com
           PreferredAuthentications publickey
-          IdentityFile ~/.ssh/id_git_{{ item }}
+          IdentityFile ~/.ssh/id_git_{{ platform }}
       {% endfor %}
   when: git_platforms | length > 0

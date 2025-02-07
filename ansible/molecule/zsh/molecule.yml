@@ -25,7 +25,7 @@ provisioner:
         vars:
           ansible_connection: community.docker.docker
           ansible_become_method: su
-          zsh_set_as_default_shell: true
+          zsh_default_shell: true
 
 scenario:
   test_sequence:

@@ -1,20 +1,20 @@
 argument_specs:
   main:
-    short_description: Install and configure Git for a list of Git hosting platforms
+    short_description: Install and configure Git for a list of Git hosting platforms (gitlab, github, etc.)
     author: Spartan0nix
     options:
       git_email:
         type: str
         required: true
         description:
-          - The email address of the Git user
-          - Used to configure 'user.mail' Git property
+          - The email address of the Git user.
+          - Used to configure the 'user.mail' Git property.
       git_username:
         type: str
         required: true
         description:
-          - The username of the Git user
-          - Used to configure 'user.name' Git property
+          - The username of the Git user.
+          - Used to configure the 'user.name' Git property.
       git_platforms:
         type: list
         elements: str
@@ -25,7 +25,7 @@ argument_specs:
           - github
         description:
           - The list of Git hosting platform to generate configuration for.
-          - An unique SSH key will be generated for each platform
+          - An unique SSH key will be generated for each platform.
       git_ssh_key_algorithm:
         type: str
         required: false
@@ -36,9 +36,9 @@ argument_specs:
           - rsa1
           - ecdsa
           - ed25519
-        description: The algorithm used to generate the SSH private key
+        description: The algorithm used to generate each SSH private keys.
       git_ssh_key_size:
         type: int
         required: false
         default: 4096
-        description: The size of the SSH key
+        description: The size of each SSH keys.

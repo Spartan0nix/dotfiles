@@ -1,16 +1,4 @@
 - name: Converge
   hosts: molecule
-  pre_tasks:
-    - name: Mock WSL variable
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_user_dir }}/.bashrc"
-        regexp: '^export WSL_DISTRO_NAME="Debian"$'
-        line: 'export WSL_DISTRO_NAME="Debian"'
-        state: present
-      become: true
-      when: run_on_wsl
-    - name: Reload environment facts
-      ansible.builtin.setup:
-      when: run_on_wsl
   roles:
     - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}/roles/vscode"

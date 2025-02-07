@@ -1,5 +1,5 @@
 ---
-- name: Install development packages # noqa: package-latest
+- name: Install packages # noqa: package-latest
   ansible.builtin.pip:
     name:
       - ansible-lint

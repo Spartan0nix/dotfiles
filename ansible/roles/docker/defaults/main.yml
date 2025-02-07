@@ -1,3 +1,0 @@
----
-docker_run_on_wsl: false
-docker_disable_tests: false

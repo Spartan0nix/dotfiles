@@ -1,18 +1,18 @@
 ---
-- name: Download deb package
+- name: Retrieve the installation package
   ansible.builtin.get_url:
-    url: "https://github.com/derailed/k9s/releases/download/{{ k9s_latest_version }}/k9s_linux_amd64.deb"
+    url: "https://github.com/derailed/k9s/releases/download/{{ k9s_latest_version.stdout }}/k9s_linux_amd64.deb"
     dest: /tmp/k9s_linux_amd64.deb
-    mode: "0640"
-    owner: "{{ ansible_user_id }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
+    mode: "0640"
 
-- name: Install deb package
+- name: Install the package
   ansible.builtin.apt:
     deb: /tmp/k9s_linux_amd64.deb
   become: true
 
-- name: Remove deb package
+- name: Remove the installation package
   ansible.builtin.file:
     path: /tmp/k9s_linux_amd64.deb
     state: absent

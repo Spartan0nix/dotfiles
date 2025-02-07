@@ -11,29 +11,15 @@
     path: /etc/apt/sources.list.d/vscode.list
   register: vscode_apt
 
-- name: Get the GPG key # noqa: risky-file-permissions
+- name: Retrieve the GPG key
   ansible.builtin.get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
-    dest: /tmp/vscode.asc
-  when: not vscode_apt.stat.exists
-  delegate_to: 127.0.0.1
-
-- name: Copy the GPG key to the server
-  ansible.builtin.copy:
-    src: /tmp/vscode.asc
     dest: /usr/share/keyrings/vscode.asc
     owner: root
     group: root
     mode: "0644"
-  when: not vscode_apt.stat.exists
   become: true
-
-- name: Remove the GPG key from the local machine
-  ansible.builtin.file:
-    path: /tmp/vscode.asc
-    state: absent
   when: not vscode_apt.stat.exists
-  delegate_to: 127.0.0.1
 
 - name: Add the APT repository
   ansible.builtin.apt_repository:
@@ -46,7 +32,6 @@
     filename: vscode
     state: present
     update_cache: true
-  when: not vscode_apt.stat.exists
   become: true
 
 - name: Install packages

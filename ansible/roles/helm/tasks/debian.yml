@@ -4,29 +4,15 @@
     path: /etc/apt/sources.list.d/helm.list
   register: helm_apt
 
-- name: Get the GPG key # noqa: risky-file-permissions
+- name: Retrive the GPG key
   ansible.builtin.get_url:
     url: https://baltocdn.com/helm/signing.asc
-    dest: /tmp/helm.asc
-  when: not helm_apt.stat.exists
-  delegate_to: 127.0.0.1
-
-- name: Copy the GPG key to the server
-  ansible.builtin.copy:
-    src: /tmp/helm.asc
     dest: /usr/share/keyrings/helm.asc
     owner: root
     group: root
     mode: "0644"
-  when: not helm_apt.stat.exists
   become: true
-
-- name: Remove the GPG key from the local machine
-  ansible.builtin.file:
-    path: /tmp/helm.asc
-    state: absent
   when: not helm_apt.stat.exists
-  delegate_to: 127.0.0.1
 
 - name: Add the APT repository
   ansible.builtin.apt_repository:
@@ -39,5 +25,4 @@
     filename: helm
     state: present
     update_cache: true
-  when: not helm_apt.stat.exists
   become: true

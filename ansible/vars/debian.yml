@@ -1,0 +1,11 @@
+global_requirements_packages:
+  - apt-transport-https
+  - bash-completion
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - net-tools
+  - software-properties-common
+  - vim
+  - wget

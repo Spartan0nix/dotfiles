@@ -1,0 +1,35 @@
+---
+- name: Create a folder for the pip configuration
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.pip"
+    state: directory
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0700"
+
+- name: Configure the CA certificate bundle (requests)
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.common_shell_config"
+    create: true
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} Python CA certificate configuration"
+    append_newline: true
+    prepend_newline: true
+    block: |
+      export REQUESTS_CA_BUNDLE="{{ python_system_ca_bundle }}"
+
+- name: Configure the CA certificate bundle (pip)
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.pip/pip.conf"
+    create: true
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} Pip CA certificate configuration"
+    append_newline: true
+    prepend_newline: true
+    block: |
+      [global]
+      cert = {{ python_system_ca_bundle }}

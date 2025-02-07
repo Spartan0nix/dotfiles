@@ -3,7 +3,7 @@ argument_specs:
     short_description: Install and configure the Zsh on a linux distribution
     author: Spartan0nix
     options:
-      zsh_set_as_default_shell:
+      zsh_default_shell:
         type: bool
         required: false
         default: true

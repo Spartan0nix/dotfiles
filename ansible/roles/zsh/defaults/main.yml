@@ -1,2 +1,2 @@
 ---
-zsh_set_as_default_shell: true
+zsh_default_shell: true

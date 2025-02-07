@@ -1,0 +1,49 @@
+---
+- name: Check the presence of the APT repo
+  ansible.builtin.stat:
+    path: /etc/apt/sources.list.d/opentofu.list
+  register: opentofu_apt
+
+- name: Retrieve the GPG keys
+  ansible.builtin.get_url:
+    url: "{{ key.url }}"
+    dest: "/usr/share/keyrings/{{ key.name }}"
+    owner: root
+    group: root
+    mode: "0644"
+  when: not opentofu_apt.stat.exists
+  become: true
+  loop_control:
+    loop_var: key
+    label: "{{ key.name }}"
+  loop:
+    - name: opentofu.gpg
+      url: https://get.opentofu.org/opentofu.gpg
+    - name: opentofu-repo.asc
+      url: https://packages.opentofu.org/opentofu/tofu/gpgkey
+
+- name: Add the APT repositories
+  ansible.builtin.apt_repository:
+    repo: "{{ repo.url }}"
+    filename: opentofu
+    state: present
+    update_cache: true
+  become: true
+  loop_control:
+    loop_var: repo
+    label: "{{ repo.name }}"
+  loop:
+    - name: deb
+      url: >-
+        deb
+        [signed-by=/usr/share/keyrings/opentofu.gpg,/usr/share/keyrings/opentofu-repo.asc]
+        https://packages.opentofu.org/opentofu/tofu/any/
+        any
+        main
+    - name: deb-src
+      url: >-
+        deb-src
+        [signed-by=/usr/share/keyrings/opentofu.gpg,/usr/share/keyrings/opentofu-repo.asc]
+        https://packages.opentofu.org/opentofu/tofu/any/
+        any
+        main

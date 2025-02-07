@@ -1,5 +1,5 @@
 ---
-- name: Configure (Debian)
+- name: Install (Debian)
   ansible.builtin.include_tasks: debian.yml
   when:
     - ansible_os_family | lower == "debian"
@@ -10,8 +10,10 @@
   when: '"WSL_DISTRO_NAME" in ansible_env'
 
 - name: Install extensions
-  ansible.builtin.command: code --install-extension "{{ item }}"
+  ansible.builtin.command: code --install-extension "{{ extension }}"
   register: vscode_extension
   changed_when: vscode_extension.rc != 0
   failed_when: vscode_extension.rc != 0
   loop: "{{ vscode_extensions }}"
+  loop_control:
+    loop_var: extension

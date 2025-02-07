@@ -1,9 +1,0 @@
-argument_specs:
-  main:
-    short_description: Install and configure nodejs on a linux distribution
-    author: Spartan0nix
-    options:
-      nodejs_version:
-        type: str
-        required: true
-        description: The version of nodejs to install (using 'n' npm package)

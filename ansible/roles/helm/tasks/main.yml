@@ -1,5 +1,5 @@
 ---
-- name: Configure (debian)
+- name: Add custom repositories (Debian)
   ansible.builtin.include_tasks: debian.yml
   when: ansible_os_family | lower == "debian"
 
@@ -7,5 +7,34 @@
   ansible.builtin.package: # noqa: package-latest
     name:
       - helm
+      # Required for the installation of plugins
+      - git
+      - wget
     state: latest
   become: true
+
+- name: Get the latest version available for plugin 'diff'
+  ansible.builtin.shell: |
+    set -o pipefail
+    git ls-remote --tags https://github.com/databus23/helm-diff.git \
+    | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+$' \
+    | cut --delimiter="/" --fields=3 \
+    | sort --version-sort \
+    | tail -1
+  args:
+    executable: /bin/bash
+  register: helm_diff_latest_version
+  changed_when: false
+  failed_when: helm_diff_latest_version.rc != 0
+
+- name: Install plugins
+  kubernetes.core.helm_plugin:
+    plugin_path: "{{ plugin.url }}"
+    plugin_version: "{{ plugin.version }}"
+    state: present
+  loop_control:
+    loop_var: plugin
+    label: "{{ plugin.url }}"
+  loop:
+    - url: https://github.com/databus23/helm-diff
+      version: "{{ helm_diff_latest_version.stdout }}"

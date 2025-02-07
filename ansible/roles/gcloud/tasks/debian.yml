@@ -2,7 +2,6 @@
 - name: Install requirements
   ansible.builtin.apt: # noqa package-latest
     name:
-      - apt-transport-https
       - ca-certificates
     state: latest
   become: true
@@ -12,28 +11,14 @@
     path: /etc/apt/sources.list.d/google-cloud.list
   register: gcloud_apt
 
-- name: Get the GPG key # noqa: risky-file-permissions
+- name: Retrieve the GPG key
   ansible.builtin.get_url:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    dest: /tmp/google-cloud.asc
-  delegate_to: 127.0.0.1
-  when: not gcloud_apt.stat.exists
-
-- name: Copy the GPG key to the server
-  ansible.builtin.copy:
-    src: /tmp/google-cloud.asc
     dest: /usr/share/keyrings/google-cloud.asc
     owner: root
     group: root
     mode: "0644"
   become: true
-  when: not gcloud_apt.stat.exists
-
-- name: Remove the GPG key from the local machine
-  ansible.builtin.file:
-    path: /tmp/google-cloud.asc
-    state: absent
-  delegate_to: 127.0.0.1
   when: not gcloud_apt.stat.exists
 
 - name: Add the APT repository
@@ -48,4 +33,3 @@
     state: present
     update_cache: true
   become: true
-  when: not gcloud_apt.stat.exists

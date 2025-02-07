@@ -1,9 +1,0 @@
-argument_specs:
-  main:
-    short_description: Install python on a linux distribution
-    author: Spartan0nix
-    options:
-      python_cacert:
-        type: str
-        required: false
-        description: Path to a custom cacert file.
