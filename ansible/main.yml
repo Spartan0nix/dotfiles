@@ -103,19 +103,18 @@
     # ---
     - role: vscode
       vscode_extensions:
+        - akamud.vscode-theme-onedark
         - alexdima.copy-relative-path
+        - bierner.markdown-mermaid
+        - esbenp.prettier-vscode
         - golang.go
-        - ms-python.debugpy
+        - hashicorp.terraform
+        - mhutchie.git-graph
         - ms-python.python
-        - ms-python.vscode-pylance
+        - pkief.material-icon-theme
         - redhat.ansible
         - redhat.vscode-yaml
-        - akamud.vscode-theme-onedark
-        - pkief.material-icon-theme
-        - mhutchie.git-graph
-        - hashicorp.terraform
         - shd101wyy.markdown-preview-enhanced
-        - bierner.markdown-mermaid
       tags: vscode
     # ---
     - role: yq
