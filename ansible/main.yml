@@ -43,7 +43,7 @@
         insertbefore: "BOF"
         block: |
           # Manually configure the PATH to prevent performance issue on WSL
-          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin/"
+          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin"
       when: '"WSL_DISTRO_NAME" in ansible_env'
       tags: always
     # ---
@@ -110,6 +110,7 @@
         - golang.go
         - hashicorp.terraform
         - mhutchie.git-graph
+        - ms-azuretools.vscode-docker
         - ms-python.python
         - pkief.material-icon-theme
         - redhat.ansible
