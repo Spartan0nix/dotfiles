@@ -1,24 +1,13 @@
 ---
-# Prevent overwriting the user '.zshrc'
-# At the same time, it allow to overwrite the default '.zshrc' file provided when installing 'zsh' for the first time
-- name: Check for exiting '.zshrc' file
-  ansible.builtin.stat:
-    path: "{{ ansible_user_dir }}/.zshrc"
-    get_attributes: false
-    get_checksum: false
-    get_mime: false
-  register: zshrc_file
-
 - name: Install requirements
   ansible.builtin.package: # noqa: package-latest
     name:
       - zsh
       - git
-      - python3-pexpect
     state: latest
   become: true
 
-- name: Check for existing oh-my-zsh installation
+- name: Check for existing 'oh-my-zsh' installation
   ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.oh-my-zsh"
     get_attributes: false
@@ -26,7 +15,7 @@
     get_mime: false
   register: ohmyzsh_install
 
-- name: Retrieve the oh-my-zsh installer script
+- name: Retrieve the 'oh-my-zsh' installer script
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
     dest: "{{ ansible_user_dir }}/ohmyzsh_install.sh"
@@ -36,15 +25,10 @@
   when: not ohmyzsh_install.stat.exists
 
 - name: Execute the installation script
-  ansible.builtin.expect:
-    command: /bin/bash {{ ansible_user_dir }}/ohmyzsh_install.sh
-    responses:
-      (?i)Do you want to change your default shell to zsh: "{{ 'y' if zsh_default_shell else 'n' }}"
-      (?i)\[sudo\] password for: "{{ ansible_become_password | default('') }}"
-  no_log: true
+  ansible.builtin.command: "sh {{ ansible_user_dir }}/ohmyzsh_install.sh --unattended"
   register: zsh_script
-  changed_when: zsh_script.rc == 0 or zsh_script.rc == 1
-  failed_when: zsh_script.rc != 0 and zsh_script.rc != 1
+  changed_when: zsh_script.rc == 0
+  failed_when: zsh_script.rc != 0
   when: not ohmyzsh_install.stat.exists
 
 - name: Remove the installation script
@@ -53,20 +37,25 @@
     state: absent
   when: not ohmyzsh_install.stat.exists
 
-- name: Copy the ZSH configuration
+- name: Update the default user shell
+  ansible.builtin.user:
+    name: "{{ ansible_user_uid }}"
+    shell: /bin/zsh
+  become: true
+
+- name: Copy the 'oh-my-zsh' configuration
   ansible.builtin.copy:
-    src: ".zshrc"
-    dest: "{{ ansible_user_dir }}/.zshrc"
+    src: "10-custom.zsh"
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh/custom/10-custom.zsh"
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
     backup: true
-  when: not zshrc_file.stat.exists
 
 - name: Install ZSH plugins
   ansible.builtin.git:
     repo: "{{ plugin.src }}"
-    dest: "{{ ansible_user_dir }}/.oh-my-zsh//plugins/{{ plugin.name }}"
+    dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/{{ plugin.name }}"
     version: master
   loop_control:
     loop_var: plugin

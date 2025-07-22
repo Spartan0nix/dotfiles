@@ -1,0 +1,32 @@
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+platforms:
+  - name: debian-bookworm
+    image: debian:bookworm
+    package_manager: apt
+
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      molecule:
+        hosts:
+          debian-bookworm:
+        vars:
+          ansible_connection: community.docker.docker
+          ansible_become_method: su
+
+scenario:
+  test_sequence:
+    - destroy
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - destroy
