@@ -6,12 +6,12 @@
     state: latest
   become: true
 
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/google-cloud.list
-  register: gcloud_apt
+    path: /usr/share/keyrings/google-cloud.asc
+  register: gcloud_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     dest: /usr/share/keyrings/google-cloud.asc
@@ -19,9 +19,9 @@
     group: root
     mode: "0644"
   become: true
-  when: not gcloud_apt.stat.exists
+  when: not gcloud_gpg.stat.exists
 
-- name: Add the APT repository
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >
       deb
