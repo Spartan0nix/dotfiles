@@ -1,0 +1,5 @@
+argument_specs:
+  main:
+    short_description: Install and configure the Go on a linux distribution
+    author: Spartan0nix
+    options: {}

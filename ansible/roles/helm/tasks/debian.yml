@@ -1,10 +1,10 @@
 ---
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/helm.list
-  register: helm_apt
+  register: helm_gpg
 
-- name: Retrive the GPG key
+- name: Retrive the 'gpg' key
   ansible.builtin.get_url:
     url: https://baltocdn.com/helm/signing.asc
     dest: /usr/share/keyrings/helm.asc
@@ -12,9 +12,9 @@
     group: root
     mode: "0644"
   become: true
-  when: not helm_apt.stat.exists
+  when: not helm_gpg.stat.exists
 
-- name: Add the APT repository
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >
       deb
