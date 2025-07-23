@@ -1,15 +1,9 @@
 ---
-- name: Add the repositories (Debian)
+- name: Setup the 'debian' repository
   ansible.builtin.include_tasks: debian.yml
   when: ansible_os_family | lower == "debian"
 
-- name: Check if running on WSL
-  ansible.builtin.set_fact:
-    docker_run_on_wsl: "{{ false if (wsl_env_var == '') else true }}"
-  vars:
-    wsl_env_var: "{{ lookup('ansible.builtin.env', 'WSL_DISTRO_NAME') | default('') }}"
-
-- name: Install packages
+- name: Install 'docker'
   ansible.builtin.package: # noqa: package-latest
     name:
       - docker-ce
@@ -17,11 +11,10 @@
       - containerd.io
       - docker-buildx-plugin
       - docker-compose-plugin
-      - python3-requests
     state: latest
   become: true
 
-- name: Update current user groups
+- name: Update the 'docker' groups to the current user
   ansible.builtin.user:
     user: "{{ ansible_user_id }}"
     state: present
@@ -30,26 +23,8 @@
     append: true
   become: true
 
-- name: Start the docker service
+- name: Start the 'docker' service
   ansible.builtin.service:
     name: docker
     state: started
   become: true
-  when: not docker_run_on_wsl
-
-- name: Configure service autostart for WSL
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.common_shell_config"
-    create: true
-    owner: "{{ ansible_user_id }}"
-    group: "{{ ansible_user_gid }}"
-    mode: "0600"
-    marker: "# {mark} docker service automatic startup for WSL"
-    append_newline: true
-    prepend_newline: true
-    block: |
-      # Start the docker service when opening a new session
-      if service docker status 2>&1 | grep -q "is not running"; then
-          /mnt/c/Windows/System32/wsl.exe -d "${WSL_DISTRO_NAME}" -u root -e /usr/sbin/service docker start >/dev/null 2>&1
-      fi
-  when: docker_run_on_wsl
