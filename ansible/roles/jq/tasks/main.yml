@@ -6,7 +6,7 @@
     state: latest
   become: true
 
-- name: Check for existing installation
+- name: Check for an existing installation
   ansible.builtin.stat:
     path: /usr/local/bin/jq
   register: jq_install
@@ -46,7 +46,7 @@
     - jq_install.stat.exists
     - jq_version.stdout != jq_latest_version.stdout
 
-- name: Retrieve the sources (amd64)
+- name: Retrieve the 'amd64' sources
   ansible.builtin.get_url:
     url: "https://github.com/jqlang/jq/releases/download/jq-{{ jq_latest_version.stdout }}/jq-linux-amd64"
     checksum: "sha256:https://github.com/jqlang/jq/releases/download/jq-{{ jq_latest_version.stdout }}/sha256sum.txt"
@@ -56,5 +56,5 @@
     mode: "0755"
   become: true
   when:
-    - ansible_machine  | lower in ["x86_64", "amd64"]
+    - ansible_machine | lower in ["x86_64", "amd64"]
     - not jq_install.stat.exists or (jq_version.stdout | default('') != jq_latest_version.stdout)
