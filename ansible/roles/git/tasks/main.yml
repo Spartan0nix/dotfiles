@@ -6,36 +6,36 @@
     state: latest
   become: true
 
-- name: Configure the user email
+- name: Configure the 'user.email' property
   community.general.git_config:
     name: user.email
     scope: global
     value: "{{ git_email }}"
 
-- name: Configure the username
+- name: Configure the 'user.name' property
   community.general.git_config:
     name: user.name
     scope: global
     value: "{{ git_username }}"
 
-- name: Configure the default branch name
+- name: Configure the 'init.defaultBranch'
   community.general.git_config:
     name: init.defaultBranch
     scope: global
     value: main
 
-- name: Create the ssh folder
+- name: Create the '.ssh' folder
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/.ssh"
     state: directory
     mode: "0700"
-    owner: "{{ ansible_user_id }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
 
-- name: Generate SSH keypairs
+- name: Generate 'ssh' keypairs
   community.crypto.openssh_keypair:
-    path: "{{ ansible_user_dir }}/.ssh/id_git_{{ platform }}"
-    owner: "{{ ansible_user_id }}"
+    path: "{{ ansible_user_dir }}/.ssh/id_git_{{ platform.name }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
     regenerate: partial_idempotence
@@ -46,12 +46,12 @@
   loop_control:
     loop_var: platform
 
-- name: Update the SSH config
+- name: Apply the 'ssh' config
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.ssh/config"
     backup: true
     create: true
-    owner: "{{ ansible_user_id }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
     marker: "# {mark} Git platforms authentication configurations"
@@ -59,8 +59,8 @@
     prepend_newline: true
     block: |
       {% for platform in git_platforms %}
-      Host {{ platform }}.com
+      Host {{ platform.hostname }}
           PreferredAuthentications publickey
-          IdentityFile ~/.ssh/id_git_{{ platform }}
+          IdentityFile ~/.ssh/id_git_{{ platform.name }}
       {% endfor %}
   when: git_platforms | length > 0
