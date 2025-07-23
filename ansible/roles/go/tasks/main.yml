@@ -6,7 +6,7 @@
     state: latest
   become: true
 
-- name: Check for existing installation
+- name: Check for an existing installation
   ansible.builtin.stat:
     path: /usr/local/go
   register: go_install
@@ -41,19 +41,21 @@
     path: /usr/local/go
     state: absent
   become: true
-  when: go_install.stat.exists and go_version.stdout != go_latest_version.stdout
+  when:
+    - go_install.stat.exists
+    - go_version.stdout != go_latest_version.stdout
 
-- name: Retrieve the sources (Debian)
+- name: Retrieve the 'debian' sources
   ansible.builtin.include_tasks: debian.yml
   when:
     - ansible_os_family | lower == "debian"
     - not go_install.stat.exists or (go_version.stdout | default('') != go_latest_version.stdout)
 
-- name: Add binaries to the path
+- name: Add the binaries to the path
   ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.common_shell_config"
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
     create: true
-    owner: "{{ ansible_user_id }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
     marker: "# {mark} Go binaries configuration"
@@ -62,8 +64,12 @@
     block: |
       export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 
-- name: Install 'gopls'
-  ansible.builtin.command: /usr/local/go/bin/go install golang.org/x/tools/gopls@latest
-  register: gopls_install
-  changed_when: gopls_install.rc != 0
-  failed_when: gopls_install.rc != 0
+- name: Install additional modules
+  ansible.builtin.command: "/usr/local/go/bin/go install {{ module }}"
+  register: go_modules_install
+  changed_when: '"downloading" in go_modules_install.stdout'
+  failed_when: go_modules_install.rc != 0
+  loop_control:
+    loop_var: module
+  loop:
+    - golang.org/x/tools/gopls@latest

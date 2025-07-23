@@ -1,7 +1,10 @@
 ---
-- name: Unarchive Go binaries
+- name: Unarchive the binaries
   ansible.builtin.unarchive:
     src: "https://go.dev/dl/{{ go_latest_version.stdout }}.linux-amd64.tar.gz"
     dest: /usr/local
     remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
   become: true
