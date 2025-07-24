@@ -29,17 +29,19 @@
   changed_when: false
   failed_when: k9s_latest_version.rc != 0
 
-- name: Install binaires (Debian)
+- name: Retrieve the 'debian' sources
   ansible.builtin.include_tasks: debian.yml
   when:
     - ansible_os_family | lower == "debian"
     - k9s_version | default('') != k9s_latest_version.stdout
 
-- name: Initialize the configuration directory
-  ansible.builtin.command: k9s info
-  register: k9s_info
-  changed_when: false
-  failed_when: k9s_info.rc != 0
+- name: Create the directory used to configuration skins
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/k9s/skins"
+    group: "{{ ansible_user_gid }}"
+    owner: "{{ ansible_user_uid }}"
+    mode: "0740"
+    state: directory
 
 - name: Retrieve custom k9s skins
   ansible.builtin.get_url:
@@ -52,11 +54,10 @@
     loop_var: skin
     label: "{{ skin.name }}"
   loop:
-    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/nightfox.yaml
-      name: nightfox
-    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/everforest-dark.yaml
-      name: everforest-dark
+    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/dracula.yaml
+      name: dracula
 
+# Steps used to update the configuration file instead of overwrite it each time the role is executed.
 - name: Check if the configuration file exists
   ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
@@ -87,4 +88,4 @@
     skin_config:
       k9s:
         ui:
-          skin: nightfox
+          skin: dracula
