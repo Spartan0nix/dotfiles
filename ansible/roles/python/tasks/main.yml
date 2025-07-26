@@ -21,7 +21,7 @@
   vars:
     python_full_version: "{{ ansible_facts.packages['python3'][0]['version'] }}"
 
-- name: Remove the python 'EXTERNALLY-MANAGED' flag
+- name: Remove 'python' managed 'EXTERNALLY-MANAGED' flag
   ansible.builtin.file:
     path: "/usr/lib/python{{ python_version }}/EXTERNALLY-MANAGED"
     state: absent
