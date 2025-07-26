@@ -6,7 +6,7 @@
     state: latest
   become: true
 
-- name: Check for existing installation
+- name: Check for an existing installation
   ansible.builtin.stat:
     path: /usr/local/bin/yq
   register: yq_install
@@ -43,9 +43,9 @@
   become: true
   when:
     - yq_install.stat.exists
-    - yq_version.stdout != yq_latest_version.stdout
+    - yq_version.stdout | default("") != yq_latest_version.stdout
 
-- name: Retrieve the sources (amd64)
+- name: Retrieve the 'amd64' sources
   ansible.builtin.get_url:
     url: "https://github.com/mikefarah/yq/releases/download/{{ yq_latest_version.stdout }}/yq_linux_amd64"
     dest: /usr/local/bin/yq
@@ -55,4 +55,4 @@
   become: true
   when:
     - ansible_machine  | lower in ["x86_64", "amd64"]
-    - not yq_install.stat.exists or (yq_version.stdout | default('') != yq_latest_version.stdout)
+    - not yq_install.stat.exists or (yq_version.stdout | default("") != yq_latest_version.stdout)
