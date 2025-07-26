@@ -1,20 +1,20 @@
 ---
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/trivy.list
-  register: trivy_apt
+    path: /usr/share/keyrings/trivy.asc
+  register: trivy_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: https://aquasecurity.github.io/trivy-repo/deb/public.key
     dest: /usr/share/keyrings/trivy.asc
     owner: root
     group: root
     mode: "0644"
-  when: not trivy_apt.stat.exists
+  when: not trivy_gpg.stat.exists
   become: true
 
-- name: Add the APT repository
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >-
       deb
