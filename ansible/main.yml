@@ -33,7 +33,7 @@
     # ---
     - name: Configure the default PATH for WSL
       ansible.builtin.blockinfile:
-        path: "{{ ansible_user_dir }}/.common_shell_config"
+        path: "{{ ansible_user_dir }}/.config/shell/common.sh"
         create: true
         owner: "{{ ansible_user_uid }}"
         group: "{{ ansible_user_gid }}"
@@ -64,8 +64,10 @@
     # ---
     - role: git
       git_platforms:
-        - github
-        - gitlab
+        - name: github
+          hostname: github.com
+        - name: gitlab
+          hostname: gitlab.com
       tags: git
     # ---
     - role: go
