@@ -1,20 +1,20 @@
 ---
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/hashicorp.list
-  register: terraform_apt
+  register: terraform_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: https://apt.releases.hashicorp.com/gpg
     dest: /usr/share/keyrings/hashicorp.asc
     owner: root
     group: root
     mode: "0644"
-  when: not terraform_apt.stat.exists
+  when: not terraform_gpg.stat.exists
   become: true
 
-- name: Add the APT repository
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >
       deb

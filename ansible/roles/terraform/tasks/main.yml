@@ -1,5 +1,5 @@
 ---
-- name: Install (Debian)
+- name: Add the 'debian' repository
   ansible.builtin.include_tasks: debian.yml
   when: ansible_os_family | lower == "debian"
 
