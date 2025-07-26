@@ -22,12 +22,12 @@
 
 - name: Configure node to use openssl certificates
   ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.common_shell_config"
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
-    marker: "# {mark} nodejs CA certificate configuration"
+    marker: "# {mark} NodeJS CA certificate configuration"
     append_newline: true
     prepend_newline: true
     block: |

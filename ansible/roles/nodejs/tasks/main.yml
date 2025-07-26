@@ -32,7 +32,7 @@
   failed_when: node_prune.rc != 0
   become: true
 
-- name: Install additionnal npm packages
+- name: Install additionnal 'npm' packages
   community.general.npm:
     name: "{{ package }}"
     state: latest

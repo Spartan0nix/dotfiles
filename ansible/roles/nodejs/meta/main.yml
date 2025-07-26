@@ -1,3 +1,9 @@
 ---
+argument_specs:
+  main:
+    short_description: Install and configure NodeJS on a linux distribution
+    author: Spartan0nix
+    options: {}
+
 collections:
   - community.general
