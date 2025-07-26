@@ -5,6 +5,7 @@ global_requirements_packages:
   - curl
   - gnupg
   - lsb-release
+  - man
   - net-tools
   - software-properties-common
   - vim
