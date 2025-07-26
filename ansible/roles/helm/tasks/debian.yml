@@ -1,7 +1,7 @@
 ---
 - name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/helm.list
+    path: /usr/share/keyrings/helm.asc
   register: helm_gpg
 
 - name: Retrive the 'gpg' key
