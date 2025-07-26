@@ -31,7 +31,7 @@
   changed_when: false
   failed_when: kubernetes_latest_version.rc != 0
 
-- name: Add custom repositories (Debian)
+- name: Add the 'apt' repository
   ansible.builtin.include_tasks: debian.yml
   when:
     - ansible_os_family | lower == "debian"
@@ -45,30 +45,65 @@
     state: latest
   become: true
 
-- name: Configure shell completion (bash)
+- name: Create a directory to store the shell completions
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/shell/completions"
+    state: directory
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0700"
+  when: kubectl_shell_completion | length > 0
+
+- name: Generate the shell completion script (bash)
+  ansible.builtin.shell: |
+    kubectl completion bash > $HOME/.config/shell/completions/kubectl.bash
+  args:
+    executable: /bin/bash
+  register: bash_completion
+  changed_when: false
+  failed_when: bash_completion.rc != 0
+  when: '"bash" in kubectl_shell_completion'
+
+- name: Add the completion scripts to the path (bash)
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.bashrc"
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
-    mode: "0640"
-    marker: "# {mark} kubectl completion configuration"
+    mode: "0644"
+    marker: "# {mark} Kubectl completion configuration"
     append_newline: true
     prepend_newline: true
     block: |
-      source <(kubectl completion bash)
+      if [[ -f $HOME/.config/shell/completions/kubectl.bash ]]
+      then
+        source $HOME/.config/shell/completions/kubectl.bash
+      fi
   when: '"bash" in kubectl_shell_completion'
 
-- name: Configure shell completion (zsh)
+- name: Generate the shell completion script (zsh)
+  ansible.builtin.shell: |
+    kubectl completion zsh > $HOME/.config/shell/completions/kubectl.zsh
+  args:
+    executable: /bin/bash
+  register: zsh_completion
+  changed_when: false
+  failed_when: zsh_completion.rc != 0
+  when: '"zsh" in kubectl_shell_completion'
+
+- name: Add the completion scripts to the path (zsh)
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.zshrc"
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
-    mode: "0640"
-    marker: "# {mark} kubectl completion configuration"
+    mode: "0644"
+    marker: "# {mark} Kubectl completion configuration"
     append_newline: true
     prepend_newline: true
     block: |
-      source <(kubectl completion zsh)
+      if [[ -f $HOME/.config/shell/completions/kubectl.zsh ]]
+      then
+        source $HOME/.config/shell/completions/kubectl.zsh
+      fi
   when: '"zsh" in kubectl_shell_completion'

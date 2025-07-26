@@ -1,4 +1,7 @@
 - name: Converge
   hosts: molecule
+  vars:
+    kubectl_shell_completion:
+      - bash
   roles:
-    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}/roles/kubectl"
+    - role: kubectl

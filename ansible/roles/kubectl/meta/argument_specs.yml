@@ -1,6 +1,6 @@
 argument_specs:
   main:
-    short_description: Install and configure Kubectl
+    short_description: Install and configure Kubectl on a linux distribution
     author: Spartan0nix
     options:
       kubectl_shell_completion:
@@ -8,7 +8,7 @@ argument_specs:
         elements: str
         required: false
         default:
-          - bash
+          - zsh
         choices:
           - bash
           - zsh

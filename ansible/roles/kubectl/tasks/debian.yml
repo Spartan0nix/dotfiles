@@ -6,12 +6,7 @@
     state: latest
   become: true
 
-- name: Check the presence of the APT repo
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/kubernetes.list
-  register: kubernetes_apt
-
-- name: Remove the previous APT configuration
+- name: Remove the previous 'apt' configuration
   ansible.builtin.file:
     path: "{{ file }}"
     state: absent
@@ -20,15 +15,13 @@
   loop:
     - /etc/apt/sources.list.d/kubernetes.list
     - /usr/share/keyrings/kubernetes.asc
-    - /etc/apt/preferences.d/kubernetes
   become: true
-  when: kubernetes_apt.stat.exists
 
 - name: Extract the short version format (X.Y)
   ansible.builtin.set_fact:
     kubernetes_short_version: "{{ kubernetes_latest_version.stdout | regex_replace('\\.[0-9]+$', '') }}"
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_short_version }}/deb/Release.key"
     dest: /usr/share/keyrings/kubernetes.asc
@@ -37,7 +30,7 @@
     mode: "0644"
   become: true
 
-- name: Add the APT repository
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >
       deb
@@ -49,7 +42,7 @@
     update_cache: true
   become: true
 
-- name: Copy the APT preference configuration
+- name: Copy the 'apt' preference configuration
   ansible.builtin.copy:
     src: apt-preference
     dest: /etc/apt/preferences.d/kubernetes
