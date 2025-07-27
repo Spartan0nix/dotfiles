@@ -8,5 +8,6 @@ global_requirements_packages:
   - man
   - net-tools
   - software-properties-common
+  - sshpass
   - vim
   - wget
