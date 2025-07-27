@@ -6,26 +6,45 @@
     state: latest
   become: true
 
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/vscode.list
-  register: vscode_apt
+    path: /usr/share/keyrings/microsoft.gpg
+  register: vscode_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the ASCII-armored 'gpg' key
   ansible.builtin.get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
-    dest: /usr/share/keyrings/vscode.asc
+    dest: /usr/share/keyrings/microsoft.asc
     owner: root
     group: root
     mode: "0644"
   become: true
-  when: not vscode_apt.stat.exists
+  when: not vscode_gpg.stat.exists
 
-- name: Add the APT repository
+- name: Generate a dearmored 'gpg' key
+  ansible.builtin.command: >-
+    gpg
+    --dearmor
+    --output /usr/share/keyrings/microsoft.gpg
+    /usr/share/keyrings/microsoft.asc
+  register: vscode_asc_to_gpg
+  changed_when: vscode_asc_to_gpg.rc == 0
+  failed_when: vscode_asc_to_gpg.rc != 0
+  become: true
+  when: not vscode_gpg.stat.exists
+
+- name: Remove the ASCII-armored 'gpg' key
+  ansible.builtin.file:
+    path: /usr/share/keyrings/microsoft.asc
+    state: absent
+  become: true
+  when: not vscode_gpg.stat.exists
+
+- name: Add the 'apt' repository
   ansible.builtin.apt_repository:
     repo: >
       deb
-      [arch=amd64 signed-by=/usr/share/keyrings/vscode.asc]
+      [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg]
       https://packages.microsoft.com/repos/code
       stable
       main

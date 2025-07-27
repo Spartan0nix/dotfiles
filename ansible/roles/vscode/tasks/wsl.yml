@@ -1,5 +1,5 @@
 ---
-- name: Get the path to the vscode binaires from the host
+- name: Get the path to the binaires on the host
   ansible.builtin.command: >-
     /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
     -ExecutionPolicy Bypass
@@ -15,19 +15,32 @@
   failed_when: vscode_bin_path.rc != 0
   when: vscode_host_bin_path.stdout != ""
 
-- name: Add vscode binaries to the PATH
+- name: Add the binaries to the PATH
   ansible.builtin.blockinfile:
-    path: "{{ ansible_user_dir }}/.common_shell_config"
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
     create: true
-    owner: "{{ ansible_user_id }}"
+    owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
-    marker: "# {mark} Windows host vscode binaries configuration"
+    marker: "# {mark} VSCode Windows host binaries configuration"
     append_newline: true
     prepend_newline: true
     block: |
       export PATH="$PATH:{{ vscode_bin }}"
   vars:
-    # Remove the binary ('/code.cmd') at the end of the path
+    # Remove the '/code.cmd' at the end of the path
     vscode_bin: "{{ vscode_bin_path.stdout | replace('/code.cmd', '') }}"
   when: vscode_host_bin_path.stdout != ""
+
+- name: Retrieve the current Windows username
+  ansible.builtin.command: >-
+    /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
+    -ExecutionPolicy Bypass
+    "Write-Output $env:UserName"
+  register: vscode_host_user
+  changed_when: false
+  failed_when: vscode_host_user.stdout == ""
+
+- name: Update VSCode fact
+  ansible.builtin.set_fact:
+    vscode_user_config_directory: "/mnt/c/Users/{{ vscode_host_user.stdout }}/AppData/Roaming/Code/User"

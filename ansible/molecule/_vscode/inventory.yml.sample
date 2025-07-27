@@ -1,0 +1,26 @@
+all:
+  hosts:
+    # ---
+    # Host used to test the playbook in a WSL environment
+    # ---
+    wsl:
+      ansible_connection: local
+      ansible_user: toto
+      ansible_become_user: root
+      ansible_become_method: sudo
+      # ---
+      vscode_extensions:
+        - alexdima.copy-relative-path
+        - golang.go
+    # ---
+    # Host used to test the playbook in a standalone Linux environment
+    # ---
+    standalone:
+      ansible_host: 192.168.0.1
+      ansible_user: toto
+      ansible_become_user: root
+      ansible_become_method: sudo
+      # ---
+      vscode_extensions:
+        - alexdima.copy-relative-path
+        - golang.go
