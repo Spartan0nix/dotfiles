@@ -2,6 +2,7 @@
 - name: Local development environment configuration
   hosts: localhost
   connection: local
+  # ---
   vars_prompt:
     - name: ansible_become_password
       prompt: Password of the ansible become user
@@ -12,41 +13,12 @@
     - name: git_email
       prompt: Email address of the git configuration
       private: false
+  # ---
   pre_tasks:
-    # ---
-    - name: Import distro specific vars
-      ansible.builtin.include_vars: "{{ ansible_os_family | lower }}.yml"
+    - name: Load pre tasks
+      ansible.builtin.include_tasks: pre/main.yml
       tags: always
-    # ---
-    - name: Install global requirements # noqa: package-latest
-      ansible.builtin.package:
-        name: "{{ global_requirements_packages }}"
-        state: latest
-      become: true
-      tags: always
-    # ---
-    - name: Install pip requirements # noqa: package-latest
-      ansible.builtin.pip:
-        name: jmespath
-        state: latest
-      tags: always
-    # ---
-    - name: Configure the default PATH for WSL
-      ansible.builtin.blockinfile:
-        path: "{{ ansible_user_dir }}/.config/shell/common.sh"
-        create: true
-        owner: "{{ ansible_user_uid }}"
-        group: "{{ ansible_user_gid }}"
-        mode: "0600"
-        marker: "# {mark} WSL PATH configuration"
-        append_newline: true
-        insertbefore: "BOF"
-        block: |
-          # Manually configure the PATH to prevent performance issue on WSL
-          export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin"
-      when: '"WSL_DISTRO_NAME" in ansible_env'
-      tags: always
-    # ---
+  # ---
   roles:
     # ---
     - role: zsh

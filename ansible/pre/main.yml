@@ -1,0 +1,61 @@
+---
+- name: Import distro specific vars
+  ansible.builtin.include_vars: "{{ ansible_os_family | lower }}.yml"
+  tags: always
+
+- name: Install global requirements # noqa: package-latest
+  ansible.builtin.package:
+    name: "{{ global_requirements_packages }}"
+    state: latest
+  become: true
+  tags: always
+
+- name: Install pip requirements # noqa: package-latest
+  ansible.builtin.pip:
+    name: jmespath
+    state: latest
+  tags: always
+
+- name: Configure the default PATH for WSL
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
+    create: true
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} WSL PATH configuration"
+    append_newline: true
+    insertbefore: "BOF"
+    block: |
+      # Manually configure the PATH to prevent performance issue on WSL
+      export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin"
+  when: '"WSL_DISTRO_NAME" in ansible_env'
+  tags: always
+
+- name: Disable the system bell notification (inputrc)
+  ansible.builtin.lineinfile:
+    path: /etc/inputrc
+    regexp: "^set bell-style .+"
+    line: "set bell-style none"
+  become: true
+  tags: always
+
+- name: Disable the running 'PC Speaker' modprobe module
+  community.general.modprobe:
+    name: pcspkr
+    state: absent
+    persistent: absent
+  become: true
+  tags: always
+
+- name: Blacklist the 'PC Speaker' modprobe module
+  ansible.builtin.lineinfile:
+    path: /etc/modprobe.d/blacklist.conf
+    regexp: "^blacklist pcspkr"
+    line: "blacklist pcspkr"
+    create: true
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  tags: always

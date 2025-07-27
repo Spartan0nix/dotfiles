@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Branch or Tag of the 'dotfiles' Git repository.
+DOTFILES_GIT_REPO_BRANCH="main"
+
 # Function used to cleanup sources before exiting when an error occures.
 function cleanup {
     echo "> Cleaning up before exiting..."
@@ -194,11 +197,6 @@ GIT_DESTINATION_FOLDER="$HOME/.ansible-dotfiles"
 echo "> Detecting the method to use for privileged actions..."
 become_function=$(get_become_function)
 echo "  - Using: '$become_function'"
-steps_current=$((steps_current+1))
-
-echo "> Disabling system bell notification..."
-$become_function sed -i 's/# set bell-style none/set bell-style none/' /etc/inputrc
-steps_current=$((steps_current+1))
 
 echo "> Retrieving information about the current distribution..."
 os_distro=$(get_currrent_distro)
@@ -222,7 +220,12 @@ then
     echo "- Cloning the repository..."
     rm -rf $GIT_DESTINATION_FOLDER
     mkdir -p $GIT_DESTINATION_FOLDER
-    git clone --quiet "https://github.com/Spartan0nix/dotfiles.git" "$GIT_DESTINATION_FOLDER"
+    git clone \
+        --quiet \
+        --branch $DOTFILES_GIT_REPO_BRANCH \
+        --single-branch \
+        "https://github.com/Spartan0nix/dotfiles.git" \
+        "$GIT_DESTINATION_FOLDER"
 fi
 
 cd $GIT_DESTINATION_FOLDER
