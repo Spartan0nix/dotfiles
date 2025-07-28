@@ -8,6 +8,7 @@
   "breadcrumbs.enabled": false,
   // ---
   "chat.agent.enabled": false,
+  "chat.commandCenter.enabled": false,
   // ---
   "editor.codeLens": false,
   "editor.cursorBlinking": "solid",
@@ -44,6 +45,7 @@
   // ---
   "git.autofetch": true,
   "git.confirmSync": false,
+  "git.replaceTagsWhenPull": true,
   // ---
   "github.copilot.enable": {
     "*": false
@@ -63,11 +65,13 @@
   "workbench.activityBar.location": "top",
   "workbench.colorTheme": "Dracula Theme",
   "workbench.iconTheme": "material-icon-theme",
+  "workbench.layoutControl.enabled": false,
+  "workbench.navigationControl.enabled": false,
+  "workbench.startupEditor": "none",
   "workbench.tips.enabled": false,
   "workbench.tree.enableStickyScroll": false,
   "workbench.tree.indent": 12,
   "workbench.tree.renderIndentGuides": "none",
-  "workbench.startupEditor": "none",
   // ---
   "yaml.customTags": ["!reference sequence"],
   // ---
