@@ -75,6 +75,9 @@
     - role: trivy
       tags: trivy
     # ---
+    - role: vim
+      tags: vim
+    # ---
     - role: vscode
       vscode_extensions:
         - akamud.vscode-theme-onedark

@@ -164,6 +164,7 @@ function select_tags {
                 "python" \
                 "terraform" \
                 "trivy" \
+                "vim" \
                 "vscode" \
                 "yq" \
                 "zsh"\
