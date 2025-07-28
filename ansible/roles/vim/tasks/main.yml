@@ -1,0 +1,48 @@
+- name: Install packages
+  ansible.builtin.package: # noqa: package-latest
+    name:
+      - vim
+      - git
+    state: latest
+  become: true
+
+- name: Create a directory to store the themes
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.vim/pack/themes/start"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0700"
+    state: directory
+
+- name: Install themes
+  ansible.builtin.git:
+    repo: "{{ theme.src }}"
+    dest: "{{ ansible_user_dir }}/.vim/pack/themes/start/{{ theme.name }}"
+    version: master
+  loop_control:
+    loop_var: theme
+  loop:
+    - name: dracula
+      src: https://github.com/dracula/vim.git
+
+- name: Update the '.vimrc' configuration
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.vimrc"
+    create: true
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    append_newline: true
+    prepend_newline: true
+    marker: '" {mark} ANSIBLE MANAGED BLOCK'
+    block: |
+      " Enable syntax highlight
+      syntax enable
+      " Configure the theme
+      colorscheme dracula
+      {% if 'WSL_DISTRO_NAME' in ansible_env %}
+      " Prevent issues with WSL
+      set termguicolors
+      {% endif %}
+      " Disable the bell notifications
+      set noerrorbells visualbell t_vb=
