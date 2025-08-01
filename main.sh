@@ -116,7 +116,7 @@ function setup_debian {
         then
             echo "- Adding '$HOME/.local/bin' to the PATH in '~/.bashrc'..."
             echo -e "\nexport PATH=\$PATH:\$HOME/.local/bin" >> "$HOME/.bashrc"
-	        source "$HOME/.bashrc"
+            source "$HOME/.bashrc"
         fi
     else
         echo "  - 'ansible' is already installed"
@@ -212,34 +212,34 @@ echo "> Cloning the Git repository in '$GIT_DESTINATION_FOLDER'..."
 overwrite_git_repo="yes"
 if [[ -d $GIT_DESTINATION_FOLDER ]]
 then
-    echo "- The repository already exists on the machine, would you like to overwrite it ?"
-    overwrite_git_repo=$(gum choose "yes" "no")
+   echo "- The repository already exists on the machine, would you like to overwrite it ?"
+   overwrite_git_repo=$(gum choose "yes" "no")
 fi
 
 if [[ $overwrite_git_repo == "yes" ]]
 then
-    echo "- Cloning the repository..."
-    rm -rf $GIT_DESTINATION_FOLDER
-    mkdir -p $GIT_DESTINATION_FOLDER
-    git clone \
-        --quiet \
-        --branch $DOTFILES_GIT_REPO_BRANCH \
-        --single-branch \
-        "https://github.com/Spartan0nix/dotfiles.git" \
-        "$GIT_DESTINATION_FOLDER"
+   echo "- Cloning the repository..."
+   rm -rf $GIT_DESTINATION_FOLDER
+   mkdir -p $GIT_DESTINATION_FOLDER
+   git clone \
+       --quiet \
+       --branch $DOTFILES_GIT_REPO_BRANCH \
+       --single-branch \
+       "https://github.com/Spartan0nix/dotfiles.git" \
+       "$GIT_DESTINATION_FOLDER"
 fi
 
 cd $GIT_DESTINATION_FOLDER
 # --
 
 echo "> Installing the Ansible Galaxy requirements..."
-ansible-galaxy collection install --requirements-file ansible/requirements.yml --upgrade 1>/dev/null
+$HOME/.local/bin/ansible-galaxy collection install --requirements-file ansible/requirements.yml --upgrade 1>/dev/null
 
 echo "> Selecting the components to deploy..."
 tags=$(select_tags)
 
 echo "> Running the playbook..."
-ansible-playbook --tags $tags ansible/main.yml
+$HOME/.local/bin/ansible-playbook --tags $tags ansible/main.yml
 
 # --
 # Can be disable when developing locally.
