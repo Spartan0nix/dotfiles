@@ -18,7 +18,7 @@
   loop_control:
     loop_var: extension
 
-- name: Copy the user settings
+- name: Copy the user settings (standalone)
   ansible.builtin.copy:
     src: settings.json
     dest: "{{ vscode_user_config_directory }}/settings.json"
@@ -26,3 +26,4 @@
     group: "{{ ansible_user_gid }}"
     mode: "0640"
     backup: true
+  when: '"WSL_DISTRO_NAME" not in ansible_env'

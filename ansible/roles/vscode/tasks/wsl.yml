@@ -44,3 +44,9 @@
 - name: Update VSCode fact
   ansible.builtin.set_fact:
     vscode_user_config_directory: "/mnt/c/Users/{{ vscode_host_user.stdout }}/AppData/Roaming/Code/User"
+
+- name: Copy the user settings # noqa: risky-file-permissions
+  ansible.builtin.copy:
+    src: settings.json
+    dest: "{{ vscode_user_config_directory }}/settings.json"
+    backup: true
