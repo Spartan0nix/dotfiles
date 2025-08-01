@@ -22,7 +22,6 @@
   roles:
     # ---
     - role: zsh
-      zsh_default_shell: true
       tags: zsh
     # ---
     - role: ansible_dev
