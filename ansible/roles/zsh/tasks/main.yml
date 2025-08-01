@@ -7,7 +7,7 @@
     state: latest
   become: true
 
-- name: Check for existing 'oh-my-zsh' installation
+- name: Check for existing 'oh-my-zsh' installation # noqa: var-naming
   ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.oh-my-zsh"
     get_attributes: false
@@ -51,6 +51,28 @@
     group: "{{ ansible_user_gid }}"
     mode: "0600"
     backup: true
+
+- name: Update the '.zshrc' configuration
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.zshrc"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    regexp: "{{ config.regex }}"
+    line: "{{ config.line }}"
+  loop_control:
+    loop_var: config
+    label: "{{ config.regex }}"
+  loop:
+    - regex: "^plugins=.+"
+      line: >-
+        plugins=(
+        git
+        command-not-found
+        zsh-syntax-highlighting
+        zsh-autosuggestions
+        zsh-completions
+        )
 
 - name: Install ZSH plugins
   ansible.builtin.git:
