@@ -46,16 +46,18 @@
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.replaceTagsWhenPull": true,
-  // ---
   "github.copilot.enable": {
     "*": false
   },
+  // ---
   "material-icon-theme.hidesExplorerArrows": true,
   // ---
   "redhat.telemetry.enabled": false,
   // ---
   "scm.defaultViewMode": "tree",
   // ---
+  "telemetry.feedback.enabled": false,
+  "telemetry.telemetryLevel": "error",
   "terminal.integrated.fontFamily": "Cascadia Code",
   // ---
   "update.showReleaseNotes": false,
