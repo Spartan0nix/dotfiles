@@ -1,0 +1,7 @@
+---
+- name: Install packages
+  community.general.pacman:
+    name:
+      - k9s
+    state: present
+  become: true

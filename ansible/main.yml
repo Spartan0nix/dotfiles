@@ -4,9 +4,9 @@
   connection: local
   # ---
   vars_prompt:
-    - name: ansible_become_password
-      prompt: Password of the ansible become user
-      private: true
+    - name: ansible_user
+      prompt: Name of the user used to execute Ansible (ansible_user)
+      private: false
     - name: git_username
       prompt: Username of the git configuration
       private: false
@@ -19,80 +19,94 @@
       ansible.builtin.include_tasks: pre/main.yml
       tags: always
   # ---
-  roles:
+  tasks:
     # ---
-    - role: zsh
-      tags: zsh
+    - name: Include task (zsh)
+      ansible.builtin.include_role:
+        name: zsh
+      when: '"zsh" in components'
     # ---
-    - role: ansible_dev
-      tags: ansible_dev
+    - name: Include task (docker)
+      ansible.builtin.include_role:
+        name: docker
+      when: '"docker" in components'
     # ---
-    - role: docker
-      tags: docker
+    - name: Include task (gcloud)
+      ansible.builtin.include_role:
+        name: gcloud
+      when: '"gcloud" in components'
     # ---
-    - role: gcloud
-      tags: gcloud
+    - name: Include task (git)
+      ansible.builtin.include_role:
+        name: git
+      when: '"git" in components'
     # ---
-    - role: git
-      git_platforms:
-        - name: github
-          hostname: github.com
-        - name: gitlab
-          hostname: gitlab.com
-      tags: git
+    - name: Include task (go)
+      ansible.builtin.include_role:
+        name: go
+      when: '"go" in components'
     # ---
-    - role: go
-      tags: go
+    - name: Include task (helm)
+      ansible.builtin.include_role:
+        name: helm
+      when: '"helm" in components'
     # ---
-    - role: helm
-      tags: helm
+    - name: Include task (jq)
+      ansible.builtin.include_role:
+        name: jq
+      when: '"jq" in components'
     # ---
-    - role: jq
-      tags: jq
+    - name: Include task (k9s)
+      ansible.builtin.include_role:
+        name: k9s
+      when: '"k9s" in components'
     # ---
-    - role: k9s
-      tags: k9s
+    - name: Include task (kubectl)
+      ansible.builtin.include_role:
+        name: kubectl
+      when: '"kubectl" in components'
     # ---
-    - role: kubectl
-      kubectl_shell_completion:
-        - zsh
-        - bash
-      tags: kubectl
+    - name: Include task (nodejs)
+      ansible.builtin.include_role:
+        name: nodejs
+      when: '"nodejs" in components'
     # ---
-    - role: nodejs
-      tags: nodejs
+    - name: Include task (opentofu)
+      ansible.builtin.include_role:
+        name: opentofu
+      when: '"opentofu" in components'
     # ---
-    - role: opentofu
-      tags: opentofu
+    - name: Include task (python)
+      ansible.builtin.include_role:
+        name: python
+      when: '"python" in components'
     # ---
-    - role: python
-      tags: python
+    - name: Include task (terraform)
+      ansible.builtin.include_role:
+        name: terraform
+      when: '"terraform" in components'
     # ---
-    - role: terraform
-      tags: terraform
+    - name: Include task (trivy)
+      ansible.builtin.include_role:
+        name: trivy
+      when: '"trivy" in components'
     # ---
-    - role: trivy
-      tags: trivy
+    - name: Include task (vim)
+      ansible.builtin.include_role:
+        name: vim
+      when: '"vim" in components'
     # ---
-    - role: vim
-      tags: vim
+    - name: Include task (vscode)
+      ansible.builtin.include_role:
+        name: vscode
+      when: '"vscode" in components'
     # ---
-    - role: vscode
-      vscode_extensions:
-        - akamud.vscode-theme-onedark
-        - alexdima.copy-relative-path
-        - bierner.markdown-mermaid
-        - esbenp.prettier-vscode
-        - golang.go
-        - hashicorp.terraform
-        - mhutchie.git-graph
-        - ms-azuretools.vscode-docker
-        - ms-python.python
-        - pkief.material-icon-theme
-        - redhat.ansible
-        - redhat.vscode-yaml
-        - shd101wyy.markdown-preview-enhanced
-      tags: vscode
+    - name: Include task (vscodium)
+      ansible.builtin.include_role:
+        name: vscodium
+      when: '"vscodium" in components'
     # ---
-    - role: yq
-      tags: yq
+    - name: Include task (yq)
+      ansible.builtin.include_role:
+        name: yq
+      when: '"yq" in components'

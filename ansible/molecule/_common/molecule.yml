@@ -8,8 +8,11 @@ dependency:
 
 platforms:
   - name: debian-bookworm
-    image: debian:bookworm
-    package_manager: apt
+    dockerfile: docker/debian-bookworm.yml
+  - name: debian-trixie
+    dockerfile: docker/debian-trixie.yml
+  - name: archlinux
+    dockerfile: docker/archlinux.yml
 
 provisioner:
   name: ansible
@@ -18,12 +21,18 @@ provisioner:
       molecule:
         hosts:
           debian-bookworm:
+          debian-trixie:
+          archlinux:
         vars:
           ansible_connection: community.docker.docker
-          ansible_become_method: su
+          ansible_user: runner
+          ansible_become_user: root
+          ansible_become_password: pwd_runner
+          ansible_become_method: sudo
 
 scenario:
   test_sequence:
+    - dependency
     - destroy
     - create
     - prepare

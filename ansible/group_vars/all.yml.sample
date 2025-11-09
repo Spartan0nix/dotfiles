@@ -1,0 +1,72 @@
+---
+# The list of components to deploy.
+# Each component represent a role stored in the `roles` directory.
+components: []
+#  - docker
+#  - gcloud
+#  - git
+#  - go
+#  - helm
+#  - jq
+#  - k9s
+#  - kubectl
+#  - nodejs
+#  - opentofu
+#  - python
+#  - terraform
+#  - trivy
+#  - vim
+#  - vscode
+#  - vscodium
+#  - yq
+#  - zsh
+
+# The name of the user used to retrieve the AUR packages.
+gcloud_aur_user: "{{ ansible_user }}"
+
+# The list of platforms to configure Git for.
+git_platforms:
+  - name: github
+    hostname: github.com
+  - name: gitlab
+    hostname: gitlab.com
+
+# The list of shell to configure auto completion for.
+kubectl_shell_completion:
+  - bash
+  - zsh
+
+# The version of the Git repo to use to install NVM.
+nodejs_nvm_version: master
+
+# The list of VSCode extensions to install.
+vscode_extensions:
+  - bierner.markdown-mermaid
+  - dracula-theme.theme-dracula
+  - esbenp.prettier-vscode
+  - golang.go
+  - hashicorp.terraform
+  - mhutchie.git-graph
+  - ms-azuretools.vscode-docker
+  - ms-python.python
+  - pkief.material-icon-theme
+  - redhat.ansible
+  - redhat.vscode-yaml
+  - shd101wyy.markdown-preview-enhanced
+
+# Name of the user used to retrieve the AUR packages.
+vscodium_aur_user: "{{ ansible_user }}"
+# The list of VSCoduim extensions to install.
+vscodium_extensions:
+  - bierner.markdown-mermaid
+  - dracula-theme.theme-dracula
+  - esbenp.prettier-vscode
+  - golang.go
+  - hashicorp.terraform
+  - mhutchie.git-graph
+  - ms-azuretools.vscode-docker
+  - ms-python.python
+  - pkief.material-icon-theme
+  - redhat.ansible
+  - redhat.vscode-yaml
+  - shd101wyy.markdown-preview-enhanced

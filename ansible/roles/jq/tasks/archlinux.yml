@@ -1,0 +1,7 @@
+---
+- name: Install packages
+  community.general.pacman:
+    name:
+      - jq
+    state: present
+  become: true

@@ -1,0 +1,5 @@
+---
+python_system_ca_bundle: /etc/ssl/certs/ca-certificates.crt
+python_packages:
+  - python
+  - python-pip

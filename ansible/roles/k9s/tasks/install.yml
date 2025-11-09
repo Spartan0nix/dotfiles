@@ -1,0 +1,91 @@
+---
+- name: Install requirements
+  ansible.builtin.package:
+    name:
+      - git
+    state: present
+  become: true
+
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Get the version installed
+  ansible.builtin.set_fact:
+    k9s_version: "v{{ ansible_facts.packages['k9s'][0]['version'] }}"
+  when: '"k9s" in ansible_facts.packages'
+
+- name: Get the latest version available
+  ansible.builtin.shell: |
+    set -o pipefail
+    git ls-remote --tags https://github.com/derailed/k9s.git \
+    | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+$' \
+    | cut --delimiter="/" --fields=3 \
+    | sort --version-sort \
+    | tail -1
+  args:
+    executable: /bin/bash
+  register: k9s_latest_version
+  changed_when: false
+  failed_when: k9s_latest_version.rc != 0
+
+- name: Install tasks (debian)
+  ansible.builtin.include_tasks: debian.yml
+  when:
+    - ansible_os_family | lower == "debian"
+    - k9s_version | default("") != k9s_latest_version.stdout
+
+- name: Create the directory used to store skins
+  ansible.builtin.file:
+    path: "{{ ansible_user_dir }}/.config/k9s/skins"
+    group: "{{ ansible_user_gid }}"
+    owner: "{{ ansible_user_uid }}"
+    mode: "0740"
+    state: directory
+
+- name: Retrieve custom k9s skins
+  ansible.builtin.get_url:
+    url: "{{ skin.url }}"
+    dest: "{{ ansible_user_dir }}/.config/k9s/skins/{{ skin.name }}.yaml"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+  loop_control:
+    loop_var: skin
+    label: "{{ skin.name }}"
+  loop:
+    - url: https://raw.githubusercontent.com/derailed/k9s/master/skins/dracula.yaml
+      name: dracula
+
+# Steps used to update the configuration file instead of overwrite it each time the role is executed.
+- name: Check if the configuration file exists
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+    get_attributes: false
+    get_checksum: false
+    get_mime: false
+  register: k9s_config
+
+- name: Retrieve the configuration file content
+  ansible.builtin.slurp:
+    src: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+  register: k9s_config_b64
+  when: k9s_config.stat.exists
+
+- name: Extract the configuration content
+  ansible.builtin.set_fact:
+    k9s_config_content: "{{ k9s_config_b64['content'] | b64decode | from_yaml }}"
+  when: k9s_config.stat.exists
+
+- name: Update the default skin in the configuration file
+  ansible.builtin.copy:
+    content: "{{ k9s_config_content | default(None) | combine(skin_config, recursive=True) | to_nice_yaml }}"
+    dest: "{{ ansible_user_dir }}/.config/k9s/config.yaml"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+  vars:
+    skin_config:
+      k9s:
+        ui:
+          skin: dracula

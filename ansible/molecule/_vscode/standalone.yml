@@ -1,4 +1,0 @@
-- name: Converge (standalone)
-  hosts: standalone
-  roles:
-    - role: vscode

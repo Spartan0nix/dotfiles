@@ -1,0 +1,42 @@
+driver:
+  name: docker
+
+dependency:
+  name: galaxy
+  options:
+    requirements-file: requirements.yml
+
+platforms:
+  - name: debian-bookworm
+    dockerfile: docker/debian-bookworm.yml
+  - name: debian-trixie
+    dockerfile: docker/debian-trixie.yml
+  - name: archlinux
+    dockerfile: docker/archlinux.yml
+
+provisioner:
+  name: ansible
+  inventory:
+    hosts:
+      molecule:
+        hosts:
+          debian-bookworm:
+          archlinux:
+        vars:
+          ansible_connection: community.docker.docker
+          ansible_user: runner
+          ansible_become_user: root
+          ansible_become_password: pwd_runner
+          ansible_become_method: sudo
+
+scenario:
+  test_sequence:
+    - dependency
+    - destroy
+    - create
+    - prepare
+    - converge
+    # APT source file is modified during each update and Ansible then rewrites it, breaking idempotence.
+    # Thanks Microsoft ...
+    # - idempotence
+    - destroy

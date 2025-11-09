@@ -1,0 +1,67 @@
+---
+- name: Configure the default PATH for WSL
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
+    create: true
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} WSL PATH configuration"
+    append_newline: true
+    insertbefore: "BOF"
+    block: |
+      # Manually configure the PATH to prevent performance issue on WSL
+      export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/lib/wsl/lib:$HOME/.local/bin"
+  tags: always
+
+# https://www.ekwbtblog.com/entry/2019/04/27/023411
+# https://github.com/microsoft/WSL/issues/2343#issuecomment-315902887
+- name: Check if 'LS_COLORS' configuration was already exported
+  ansible.builtin.stat:
+    path: "{{ ansible_user_dir }}/.dircolors"
+  register: lscolors_file
+  tags: always
+
+- name: Export the system 'LS_COLORS' to a file
+  ansible.builtin.shell: |
+    dircolors --print-database > {{ ansible_user_dir }}/.dircolors
+  args:
+    executable: /bin/bash
+  register: lscolors_export
+  changed_when: lscolors_export.rc == 0
+  failed_when: lscolors_export.rc != 0
+  when: not lscolors_file.stat.exists
+  tags: always
+
+- name: Fix 'LS_COLORS' when running on WSL
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_user_dir }}/.dircolors"
+    regexp: "{{ entry.regex }}"
+    line: "{{ entry.line }}"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+  tags: always
+  loop_control:
+    loop_var: entry
+    label: "{{ entry.line }}"
+  loop:
+    - regex: "^OTHER_WRITABLE .+"
+      line: "OTHER_WRITABLE 00"
+
+- name: Configure the automatic loading of the updated 'LS_COLORS'
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
+    create: true
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} 'LS_COLORS' configuration"
+    append_newline: true
+    insertbefore: "BOF"
+    block: |
+      # Load an updated version of the 'LS_COLORS' to fix issues when running on WSL
+      # - https://www.ekwbtblog.com/entry/2019/04/27/023411
+      # - https://github.com/microsoft/WSL/issues/2343#issuecomment-315902887
+      eval $(dircolors -b ~/.dircolors)
+  tags: always

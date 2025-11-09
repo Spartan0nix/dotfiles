@@ -1,0 +1,31 @@
+---
+- name: Install packages
+  kewlfft.aur.aur:
+    name:
+      - vscodium
+    use: yay
+    state: present
+    update_cache: true
+  become: true
+  vars:
+    # Overwrite existing variables
+    ansible_become_method: su
+    ansible_become_user: "{{ vscodium_aur_user }}"
+
+- name: Cleanup build artifacts
+  ansible.builtin.file:
+    path: "{{ artifact }}"
+    state: absent
+  become: true
+  loop_control:
+    loop_var: artifact
+  loop:
+    - "{{ playbook_dir }}/.nvmrc"
+    - "{{ ansible_user_dir }}/.rustup"
+    - "{{ ansible_user_dir }}/.npm"
+    - "{{ ansible_user_dir }}/.cargo"
+    - "{{ ansible_user_dir }}/.cache/go-build"
+    - "{{ ansible_user_dir }}/.cache/yay"
+    - "{{ ansible_user_dir }}/.cache/node-gyp"
+    - "{{ ansible_user_dir }}/.cache/js-v8flags"
+    - "{{ ansible_user_dir }}/.cache/electron"

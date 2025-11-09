@@ -46,7 +46,7 @@ setopt hist_verify            # Show command with history expansion to user befo
 PROMPT_EOL_MARK=""
 
 # Load generics shell configurations
-if [[ -f "$HOME/.config/shell/common.sh" ]]
+if [[ -s "$HOME/.config/shell/common.sh" ]]
 then
     source "$HOME/.config/shell/common.sh"
 fi

@@ -1,4 +1,0 @@
-- name: Converge
-  hosts: molecule
-  roles:
-    - role: ansible_dev

@@ -57,7 +57,7 @@
   "scm.defaultViewMode": "tree",
   // ---
   "telemetry.feedback.enabled": false,
-  "telemetry.telemetryLevel": "error",
+  "telemetry.telemetryLevel": "off",
   "terminal.integrated.fontFamily": "Cascadia Code",
   // ---
   "update.showReleaseNotes": false,

@@ -1,4 +1,6 @@
 - name: Converge
   hosts: molecule
+  vars:
+    gcloud_aur_user: runner
   roles:
     - role: gcloud

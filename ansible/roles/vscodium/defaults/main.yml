@@ -1,0 +1,5 @@
+---
+# Name of the user used to execute 'yay'.
+vscodium_aur_user: "{{ ansible_user }}"
+# VS Codium extensions to install.
+vscodium_extensions: []

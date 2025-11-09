@@ -1,48 +1,15 @@
 ---
-- name: Install requirements
-  ansible.builtin.package: # noqa : package-latest
-    name:
-      - git
-    state: latest
-  become: true
-
-- name: Gather package facts
-  ansible.builtin.package_facts:
-    manager: auto
-
-- name: Get the version installed
-  ansible.builtin.set_fact:
-    kubectl_version: "v{{ kubectl_raw_version | ansible.builtin.regex_search('[0-9]+\\.[0-9]+\\.[0-9]+') }}"
-  vars:
-    kubectl_raw_version: "{{ ansible_facts.packages['kubectl'][0]['version'] }}"
-  when: '"kubectl" in ansible_facts.packages'
-
-- name: Get the latest version available
-  ansible.builtin.shell: |
-    set -o pipefail
-    git ls-remote --tags https://github.com/kubernetes/kubernetes.git \
-    | grep -E 'v[0-9]+\.[0-9]+\.[0-9]+$' \
-    | cut --delimiter="/" --fields=3 \
-    | sort --version-sort \
-    | tail -1
-  args:
-    executable: /bin/bash
-  register: kubernetes_latest_version
-  changed_when: false
-  failed_when: kubernetes_latest_version.rc != 0
-
-- name: Add the 'apt' repository
-  ansible.builtin.include_tasks: debian.yml
+- name: Include tasks (manual installation)
+  ansible.builtin.include_tasks: install.yml
   when:
-    - ansible_os_family | lower == "debian"
-    - kubectl_version | default('') != kubernetes_latest_version.stdout
+    - ansible_os_family | lower != "archlinux"
 
 - name: Install packages
-  ansible.builtin.package: # noqa: package-latest
+  ansible.builtin.package:
     name:
       - kubectl
       - bash-completion
-    state: latest
+    state: present
   become: true
 
 - name: Create a directory to store the shell completions
@@ -70,7 +37,7 @@
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
-    mode: "0644"
+    mode: "0600"
     marker: "# {mark} Kubectl completion configuration"
     append_newline: true
     prepend_newline: true
@@ -97,7 +64,7 @@
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
-    mode: "0644"
+    mode: "0600"
     marker: "# {mark} Kubectl completion configuration"
     append_newline: true
     prepend_newline: true

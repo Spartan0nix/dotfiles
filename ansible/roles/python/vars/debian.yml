@@ -1,2 +1,6 @@
 ---
 python_system_ca_bundle: /etc/ssl/certs/ca-certificates.crt
+python_packages:
+  - python3
+  - python3-pip
+  - python3-venv

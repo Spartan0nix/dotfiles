@@ -1,0 +1,7 @@
+- name: Converge
+  hosts: molecule
+  vars:
+    vscode_extensions:
+      - golang.go
+  roles:
+    - role: vscode

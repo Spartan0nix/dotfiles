@@ -1,13 +1,13 @@
 ---
 - name: Install requirements
-  ansible.builtin.package: # noqa: package-latest
+  ansible.builtin.package:
     name:
       - zsh
       - git
-    state: latest
+    state: present
   become: true
 
-- name: Check for existing 'oh-my-zsh' installation # noqa: var-naming
+- name: Check for an existing 'oh-my-zsh' installation # noqa: var-naming
   ansible.builtin.stat:
     path: "{{ ansible_user_dir }}/.oh-my-zsh"
     get_attributes: false
@@ -24,22 +24,28 @@
     mode: "0640"
   when: not ohmyzsh_install.stat.exists
 
-- name: Execute the installation script
+- name: Execute the installer script
   ansible.builtin.command: "sh {{ ansible_user_dir }}/ohmyzsh_install.sh --unattended"
   register: zsh_script
   changed_when: zsh_script.rc == 0
   failed_when: zsh_script.rc != 0
   when: not ohmyzsh_install.stat.exists
 
-- name: Remove the installation script
+- name: Remove the installer script
   ansible.builtin.file:
     path: "{{ ansible_user_dir }}/ohmyzsh_install.sh"
     state: absent
   when: not ohmyzsh_install.stat.exists
 
+- name: Retrieve the name of the current user
+  ansible.builtin.command: "id -un {{ ansible_user_uid }}" # noqa: var-naming
+  register: current_user_name
+  changed_when: false
+  failed_when: current_user_name.rc != 0
+
 - name: Update the default user shell
   ansible.builtin.user:
-    name: "{{ ansible_user_uid }}"
+    name: "{{ current_user_name.stdout }}"
     shell: /bin/zsh
   become: true
 
@@ -74,11 +80,12 @@
         zsh-completions
         )
 
-- name: Install ZSH plugins
+- name: Install 'zsh' plugins
   ansible.builtin.git:
     repo: "{{ plugin.src }}"
     dest: "{{ ansible_user_dir }}/.oh-my-zsh/plugins/{{ plugin.name }}"
     version: master
+    update: true
   loop_control:
     loop_var: plugin
   loop:

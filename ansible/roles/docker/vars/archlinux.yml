@@ -1,0 +1,7 @@
+---
+# List of packages to install.
+docker_packages:
+  - docker
+  - containerd
+  - docker-buildx
+  - docker-compose

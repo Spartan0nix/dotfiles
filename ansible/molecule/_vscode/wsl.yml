@@ -1,4 +1,0 @@
-- name: Converge (WSL)
-  hosts: wsl
-  roles:
-    - role: vscode

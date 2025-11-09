@@ -1,0 +1,11 @@
+global_requirements_packages:
+  - bash-completion
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - man
+  - sshpass
+  - vim
+  - wget
+  - which

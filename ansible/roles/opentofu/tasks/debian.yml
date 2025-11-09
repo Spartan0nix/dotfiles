@@ -22,28 +22,43 @@
     - name: opentofu-repo.asc
       url: https://packages.opentofu.org/opentofu/tofu/gpgkey
 
-- name: Add the APT repositories
-  ansible.builtin.apt_repository:
-    repo: "{{ repo.url }}"
-    filename: opentofu
-    state: present
+- name: Add the 'apt' repository
+  ansible.builtin.copy:
+    src: opentofu.sources
+    dest: /etc/apt/sources.list.d/opentofu.sources
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  register: opentofu_apt_repo
+
+# --
+# TODO: Switch to this task, once the 'deb822_repository' module supports multiple entries for `signed_by`.
+#
+# Or when the maintainers of Opentofu decide to switch to a single key ...
+#
+# --
+# - name: Add the 'apt' repository
+#   ansible.builtin.deb822_repository:
+#     name: "opentofu"
+#     types:
+#       - deb
+#       - deb-src
+#     signed_by:
+#       - /usr/share/keyrings/opentofu.gpg
+#       - /usr/share/keyrings/opentofu-repo.asc
+#     uris: https://packages.opentofu.org/opentofu/tofu/any/
+#     suites: any
+#     components: main
+#     state: present
+#     mode: "0644"
+#     enabled: true
+#   become: true
+#   register: opentofu_apt_repo
+# --
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
   become: true
-  loop_control:
-    loop_var: repo
-    label: "{{ repo.name }}"
-  loop:
-    - name: deb
-      url: >-
-        deb
-        [signed-by=/usr/share/keyrings/opentofu.gpg,/usr/share/keyrings/opentofu-repo.asc]
-        https://packages.opentofu.org/opentofu/tofu/any/
-        any
-        main
-    - name: deb-src
-      url: >-
-        deb-src
-        [signed-by=/usr/share/keyrings/opentofu.gpg,/usr/share/keyrings/opentofu-repo.asc]
-        https://packages.opentofu.org/opentofu/tofu/any/
-        any
-        main
+  when: opentofu_apt_repo is changed

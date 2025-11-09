@@ -2,11 +2,14 @@
   hosts: localhost
   gather_facts: false
   tasks:
-    - name: Delete the container
+    - name: Delete the containers
       community.docker.docker_container:
-        name: "{{ item.name }}"
+        name: "{{ molecule.name }}"
         state: absent
       loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        loop_var: molecule
+        label: "{{ molecule.name }}"
 
     - name: Delete the network
       community.docker.docker_network:

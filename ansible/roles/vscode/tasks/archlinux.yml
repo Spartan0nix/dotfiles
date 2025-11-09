@@ -1,0 +1,11 @@
+---
+# Used to prevent a dependency issue.
+- name: Update 'pacman' cache
+  community.general.pacman:
+    update_cache: true
+  become: true
+  changed_when: false
+
+- name: Update VSCode fact
+  ansible.builtin.set_fact:
+    vscode_user_config_directory: "{{ ansible_user_dir }}/.config/Code - OSS/User"

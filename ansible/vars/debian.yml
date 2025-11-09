@@ -7,7 +7,9 @@ global_requirements_packages:
   - lsb-release
   - man
   - net-tools
-  - software-properties-common
+  # - software-properties-common
+  - python3-debian
   - sshpass
   - vim
   - wget
+  - which

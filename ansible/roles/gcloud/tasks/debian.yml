@@ -1,9 +1,9 @@
 ---
 - name: Install requirements
-  ansible.builtin.apt: # noqa package-latest
+  ansible.builtin.apt:
     name:
       - ca-certificates
-    state: latest
+    state: present
   become: true
 
 - name: Check the presence of the 'gpg' key
@@ -22,14 +22,29 @@
   when: not gcloud_gpg.stat.exists
 
 - name: Add the 'apt' repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [signed-by=/usr/share/keyrings/google-cloud.asc]
-      https://packages.cloud.google.com/apt
-      cloud-sdk
-      main
-    filename: google-cloud
+  ansible.builtin.deb822_repository:
+    name: google-cloud
+    types: deb
+    signed_by: /usr/share/keyrings/google-cloud.asc
+    uris: https://packages.cloud.google.com/apt
+    suites: cloud-sdk
+    components: main
     state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: gcloud_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
+  become: true
+  when: gcloud_apt_repo is changed
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - google-cloud-cli
+      - google-cloud-cli-gke-gcloud-auth-plugin
+    state: present
   become: true

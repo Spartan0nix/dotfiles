@@ -1,41 +1,35 @@
 ---
-- name: Retrieve the installer script
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/tj/n/master/bin/n
-    dest: "{{ ansible_user_dir }}/n"
-    owner: "{{ ansible_user_uid }}"
-    group: "{{ ansible_user_gid }}"
-    mode: "0600"
-
-- name: Install the latest LTS version
-  ansible.builtin.command: >-
-    /bin/bash {{ ansible_user_dir }}/n install lts
-  register: node_install
-  changed_when: "'fetch' in node_install.stdout"
-  failed_when: node_install.rc != 0
+- name: Install requirements
+  ansible.builtin.package: # noqa package-latest
+    name:
+      - git
+      - wget # Required by Nvm to install Node.
+    state: present
   become: true
 
-- name: Remove the installer script
-  ansible.builtin.file:
-    path: "{{ ansible_user_dir }}/n"
-    state: absent
+- name: Clone the Git repository
+  ansible.builtin.git:
+    repo: "https://github.com/nvm-sh/nvm.git"
+    dest: "{{ ansible_user_dir }}/.nvm"
+    version: "{{ nodejs_nvm_version }}"
+    recursive: false
+    update: true
 
-- name: Configure node to use openssl certificates
+- name: Add 'nvm' to the PATH
   ansible.builtin.blockinfile:
     path: "{{ ansible_user_dir }}/.config/shell/common.sh"
     create: true
     owner: "{{ ansible_user_uid }}"
     group: "{{ ansible_user_gid }}"
     mode: "0600"
-    marker: "# {mark} NodeJS CA certificate configuration"
+    marker: "# {mark} Nvm loading configuration"
     append_newline: true
     prepend_newline: true
     block: |
-      export NODE_OPTIONS="--use-openssl-ca"
+      export NVM_DIR="$HOME/.nvm"
 
-- name: Install npm package 'n'
-  community.general.npm:
-    name: "n"
-    state: latest
-    global: true
-  become: true
+      # Load 'nvm'.
+      [ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+
+      # Load 'nvm' bash_completion.
+      [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"

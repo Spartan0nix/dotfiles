@@ -1,3 +1,1 @@
-collections:
-  - community.general
-  - community.docker
+../_common/requirements.yml

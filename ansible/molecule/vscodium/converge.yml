@@ -1,0 +1,8 @@
+- name: Converge
+  hosts: molecule
+  vars:
+    vscodium_aur_user: runner
+    vscodium_extensions:
+      - golang.go
+  roles:
+    - role: vscodium

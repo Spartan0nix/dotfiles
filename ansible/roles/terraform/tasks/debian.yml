@@ -15,14 +15,21 @@
   become: true
 
 - name: Add the 'apt' repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [signed-by=/usr/share/keyrings/hashicorp.asc]
-      https://apt.releases.hashicorp.com
-      {{ ansible_distribution_release }}
-      main
-    filename: hashicorp
+  ansible.builtin.deb822_repository:
+    name: terraform
+    types: deb
+    signed_by: /usr/share/keyrings/hashicorp.asc
+    uris: https://apt.releases.hashicorp.com
+    suites: "{{ ansible_distribution_release }}"
+    components: main
     state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: terraform_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
   become: true
+  when: terraform_apt_repo is changed

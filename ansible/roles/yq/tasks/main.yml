@@ -1,58 +1,9 @@
 ---
-- name: Install requirements
-  ansible.builtin.package: # noqa : package-latest
-    name:
-      - git
-    state: latest
-  become: true
+- name: Include tasks (archlinux)
+  ansible.builtin.include_tasks: archlinux.yml
+  when: ansible_os_family | lower == "archlinux"
 
-- name: Check for an existing installation
-  ansible.builtin.stat:
-    path: /usr/local/bin/yq
-  register: yq_install
-
-- name: Get the version installed
-  ansible.builtin.shell: |
-    set -o pipefail
-    /usr/local/bin/yq --version | cut --delimiter=" " --fields=4
-  args:
-    executable: /bin/bash
-  register: yq_version
-  changed_when: false
-  failed_when: yq_version.rc != 0
-  when: yq_install.stat.exists
-
-- name: Get the latest version available
-  ansible.builtin.shell: |
-    set -o pipefail
-    git ls-remote --tags https://github.com/mikefarah/yq.git \
-    | grep -E 'v[0-9]+.[0-9]+\.[0-9]+$' \
-    | cut --delimiter="/" --fields=3 \
-    | sort --version-sort \
-    | tail -1
-  args:
-    executable: /bin/bash
-  register: yq_latest_version
-  changed_when: false
-  failed_when: yq_latest_version.rc != 0
-
-- name: Remove the existing installation
-  ansible.builtin.file:
-    path: /usr/local/bin/yq
-    state: absent
-  become: true
+- name: Include tasks (manual installation)
+  ansible.builtin.include_tasks: install.yml
   when:
-    - yq_install.stat.exists
-    - yq_version.stdout | default("") != yq_latest_version.stdout
-
-- name: Retrieve the 'amd64' sources
-  ansible.builtin.get_url:
-    url: "https://github.com/mikefarah/yq/releases/download/{{ yq_latest_version.stdout }}/yq_linux_amd64"
-    dest: /usr/local/bin/yq
-    owner: root
-    group: root
-    mode: "0755"
-  become: true
-  when:
-    - ansible_machine  | lower in ["x86_64", "amd64"]
-    - not yq_install.stat.exists or (yq_version.stdout | default("") != yq_latest_version.stdout)
+    - ansible_os_family | lower != "archlinux"
