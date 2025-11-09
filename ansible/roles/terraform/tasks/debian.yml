@@ -1,28 +1,35 @@
 ---
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/hashicorp.list
-  register: terraform_apt
+    path: /usr/share/keyrings/hashicorp.asc
+  register: terraform_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: https://apt.releases.hashicorp.com/gpg
     dest: /usr/share/keyrings/hashicorp.asc
     owner: root
     group: root
     mode: "0644"
-  when: not terraform_apt.stat.exists
+  when: not terraform_gpg.stat.exists
   become: true
 
-- name: Add the APT repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [signed-by=/usr/share/keyrings/hashicorp.asc]
-      https://apt.releases.hashicorp.com
-      {{ ansible_distribution_release }}
-      main
-    filename: hashicorp
+- name: Add the 'apt' repository
+  ansible.builtin.deb822_repository:
+    name: terraform
+    types: deb
+    signed_by: /usr/share/keyrings/hashicorp.asc
+    uris: https://apt.releases.hashicorp.com
+    suites: "{{ ansible_distribution_release }}"
+    components: main
     state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: terraform_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
   become: true
+  when: terraform_apt_repo is changed

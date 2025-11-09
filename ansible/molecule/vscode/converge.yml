@@ -1,4 +1,7 @@
 - name: Converge
   hosts: molecule
+  vars:
+    vscode_extensions:
+      - golang.go
   roles:
-    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}/roles/vscode"
+    - role: vscode

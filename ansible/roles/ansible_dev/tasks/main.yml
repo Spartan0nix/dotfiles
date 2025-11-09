@@ -1,9 +1,0 @@
----
-- name: Install packages # noqa: package-latest
-  ansible.builtin.pip:
-    name:
-      - ansible-lint
-      - molecule
-      - "molecule-plugins[docker]"
-      - antsibull-docs
-    state: latest

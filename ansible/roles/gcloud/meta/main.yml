@@ -1,0 +1,12 @@
+argument_specs:
+  main:
+    short_description: Install and configure the Google Cloud CLI on a linux distribution
+    author: Spartan0nix
+    options:
+      gcloud_aur_user:
+        type: str
+        required: false
+        default: ansible_user
+        description:
+            - Name of the user used to execute 'yay'.
+            - This user require the ability to execute 'pacman' using 'sudo' without password.

@@ -1,0 +1,65 @@
+---
+- name: Install requirements
+  ansible.builtin.package: # noqa : package-latest
+    name:
+      - git
+    state: present
+  become: true
+
+- name: Check for an existing installation
+  ansible.builtin.stat:
+    path: /usr/local/go
+  register: go_install
+
+- name: Get the version installed
+  ansible.builtin.shell: |
+    set -o pipefail
+    /usr/local/go/bin/go version | cut --delimiter=" " --fields=3
+  args:
+    executable: /bin/bash
+  register: go_version
+  changed_when: false
+  failed_when: go_version.rc != 0
+  when: go_install.stat.exists
+
+- name: Get the latest version available
+  ansible.builtin.shell: |
+    set -o pipefail
+    git ls-remote --tags https://github.com/golang/go.git \
+    | grep -E 'go[0-9]+\.[0-9]+\.[0-9]+$' \
+    | cut --delimiter="/" --fields=3 \
+    | sort --version-sort \
+    | tail -1
+  args:
+    executable: /bin/bash
+  register: go_latest_version
+  changed_when: false
+  failed_when: go_latest_version.rc != 0
+
+- name: Remove the existing installation
+  ansible.builtin.file:
+    path: /usr/local/go
+    state: absent
+  become: true
+  when:
+    - go_install.stat.exists
+    - go_version.stdout != go_latest_version.stdout
+
+- name: Include tasks (debian)
+  ansible.builtin.include_tasks: debian.yml
+  when:
+    - ansible_os_family | lower == "debian"
+    - not go_install.stat.exists or (go_version.stdout | default('') != go_latest_version.stdout)
+
+- name: Add binaries to the path
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_user_dir }}/.config/shell/common.sh"
+    create: true
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0600"
+    marker: "# {mark} Go binaries configuration"
+    append_newline: true
+    prepend_newline: true
+    block: |
+      export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin

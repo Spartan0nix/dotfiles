@@ -1,17 +1,17 @@
 ---
 - name: Install requirements
-  ansible.builtin.package: # noqa: package-latest
+  ansible.builtin.package:
     name:
       - ca-certificates
-    state: latest
+    state: present
   become: true
 
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/docker.list
-  register: docker_apt
+    path: /usr/share/keyrings/docker.asc
+  register: docker_gpg
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: https://download.docker.com/linux/debian/gpg
     dest: /usr/share/keyrings/docker.asc
@@ -19,17 +19,25 @@
     group: root
     mode: "0644"
   become: true
-  when: not docker_apt.stat.exists
+  when: not docker_gpg.stat.exists
 
-- name: Add the APT repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [arch=amd64 signed-by=/usr/share/keyrings/docker.asc]
-      https://download.docker.com/linux/debian
-      {{ ansible_distribution_release }}
-      stable
-    filename: docker
+- name: Add the 'apt' repository
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: deb
+    architectures: amd64
+    signed_by: /usr/share/keyrings/docker.asc
+    uris: https://download.docker.com/linux/debian
+    suites: "{{ ansible_distribution_release }}"
+    components: stable
     state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: docker_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
   become: true
+  when: docker_apt_repo is changed

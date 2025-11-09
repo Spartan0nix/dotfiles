@@ -9,23 +9,37 @@ argument_specs:
         description:
           - The email address of the Git user.
           - Used to configure the 'user.mail' Git property.
+
       git_username:
         type: str
         required: true
         description:
           - The username of the Git user.
           - Used to configure the 'user.name' Git property.
+
       git_platforms:
         type: list
-        elements: str
+        elements: dict
         required: false
         default: []
-        choices:
-          - gitlab
-          - github
         description:
           - The list of Git hosting platform to generate configuration for.
           - An unique SSH key will be generated for each platform.
+        options:
+          name:
+            type: str
+            required: true
+            description:
+              - Name / short name of the platform
+              - "Exemples: 'gitlab', 'github'"
+
+          hostname:
+            type: str
+            required: true
+            description:
+              - Name / fqdn of the host used to interact with the plaform using SSH.
+              - "Exemples: 'gitlab.com', 'github.com'"
+
       git_ssh_key_algorithm:
         type: str
         required: false
@@ -37,6 +51,7 @@ argument_specs:
           - ecdsa
           - ed25519
         description: The algorithm used to generate each SSH private keys.
+
       git_ssh_key_size:
         type: int
         required: false

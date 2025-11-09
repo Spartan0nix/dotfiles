@@ -1,0 +1,2 @@
+# Name of the user used to execute 'yay'.
+gcloud_aur_user: "{{ ansible_user }}"

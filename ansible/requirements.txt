@@ -1,0 +1,4 @@
+ansible<13.0.0
+cryptography<47.0.0
+jmespath<2.0.0
+python-debian<2.0.0

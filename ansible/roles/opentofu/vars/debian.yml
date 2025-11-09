@@ -1,0 +1,3 @@
+# List of packages to install.
+opentofu_packages:
+  - tofu

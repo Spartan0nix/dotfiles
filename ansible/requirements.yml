@@ -3,3 +3,4 @@ collections:
   - community.docker
   - community.crypto
   - kubernetes.core
+  - kewlfft.aur

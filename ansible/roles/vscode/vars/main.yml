@@ -1,0 +1,3 @@
+---
+# Path to the directory used to store the user VS Code configurations.
+vscode_user_config_directory: "{{ ansible_user_dir }}/.config/Code/User"

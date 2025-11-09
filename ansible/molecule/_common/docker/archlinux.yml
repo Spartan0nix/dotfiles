@@ -1,0 +1,36 @@
+FROM archlinux:latest
+
+# Create the runner user.
+RUN useradd \
+    --create-home \
+    --shell /bin/bash \
+    --groups wheel \
+    runner && \
+    echo 'runner:pwd_runner' | chpasswd
+
+# Install system requirements.
+RUN pacman --sync --refresh --noconfirm --needed \
+    base-devel \
+    git \
+    which \
+    python \
+    python-yaml \
+    python-cryptography
+
+
+# Install 'yay'.
+# Allow the runner user to execute 'pacman' without password.
+RUN echo "runner ALL=(ALL) ALL" > /etc/sudoers.d/runner && \
+    echo "runner ALL=(ALL) NOPASSWD: /usr/bin/pacman" >> /etc/sudoers.d/runner && \
+    su --login runner /bin/bash -c '\
+        git clone "https://aur.archlinux.org/yay.git" /tmp/yay && \
+        cd /tmp/yay && \
+        makepkg -si --noconfirm' && \
+    rm -rf /tmp/yay
+
+# Cleanup.
+RUN pacman --remove --noconfirm $(pacman --query --unrequired --deps --quiet) && \
+    pacman --sync --clean --noconfirm
+
+# Switch to the runner user.
+USER runner

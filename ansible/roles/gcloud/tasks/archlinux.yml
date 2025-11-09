@@ -1,0 +1,14 @@
+---
+- name: Install packages
+  kewlfft.aur.aur:
+    name:
+      - google-cloud-cli
+      - google-cloud-cli-component-gke-gcloud-auth-plugin
+    use: yay
+    state: present
+    update_cache: true
+  become: true
+  vars:
+    # Overwrite existing variables
+    ansible_become_method: su
+    ansible_become_user: "{{ gcloud_aur_user }}"

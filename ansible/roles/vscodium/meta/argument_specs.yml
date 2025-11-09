@@ -1,0 +1,19 @@
+argument_specs:
+  main:
+    short_description: Install and configure VS Codium on a linux distribution
+    author: Spartan0nix
+    options:
+      vscodium_aur_user:
+        type: str
+        required: false
+        default: ansible_user
+        description:
+            - Name of the user used to execute 'yay'.
+            - This user require the ability to execute 'pacman' using 'sudo' without password.
+
+      vscodium_extensions:
+        type: list
+        elements: str
+        required: false
+        default: []
+        description: The list of extensions to install

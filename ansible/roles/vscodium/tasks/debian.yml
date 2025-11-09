@@ -1,0 +1,43 @@
+---
+- name: Check the presence of the 'gpg' key
+  ansible.builtin.stat:
+    path: /usr/share/keyrings/vscodium.asc
+  register: vscodium_gpg
+
+- name: Retrieve the 'gpg' key
+  ansible.builtin.get_url:
+    url: https://gitlab.com/paulcarroty/vscodium-deb-rpm-repo/raw/master/pub.gpg
+    dest: /usr/share/keyrings/vscodium.asc
+    owner: root
+    group: root
+    mode: "0644"
+  when: not vscodium_gpg.stat.exists
+  become: true
+
+- name: Add the 'apt' repository
+  ansible.builtin.deb822_repository:
+    name: vscodium
+    types: deb
+    architectures: amd64
+    signed_by: /usr/share/keyrings/vscodium.asc
+    uris: https://download.vscodium.com/debs
+    suites: vscodium
+    components: main
+    state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: vscodium_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: vscodium_apt_repo is changed
+
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - codium
+    state: present
+  become: true

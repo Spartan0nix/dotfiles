@@ -1,1 +1,9 @@
-.vscode
+.vscode/
+.nvmrc
+
+# Contribution.
+.venv/
+.ansible/
+
+# Local overwrite.
+ansible/group_vars/all.yml

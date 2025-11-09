@@ -1,19 +1,43 @@
 ---
-- name: Install (Debian)
+- name: Include tasks (archlinux)
+  ansible.builtin.include_tasks: archlinux.yml
+  when:
+    - ansible_os_family | lower == "archlinux"
+
+- name: Include tasks (debian)
   ansible.builtin.include_tasks: debian.yml
   when:
     - ansible_os_family | lower == "debian"
     - '"WSL_DISTRO_NAME" not in ansible_env'
 
-- name: Configure (WSL)
+- name: Install packages
+  ansible.builtin.package:
+    name:
+      - code
+    state: present
+  become: true
+
+- name: Include tasks (wsl)
   ansible.builtin.include_tasks: wsl.yml
   when: '"WSL_DISTRO_NAME" in ansible_env'
 
 - name: Install extensions
   ansible.builtin.command: code --install-extension "{{ extension }}"
   register: vscode_extension
-  changed_when: vscode_extension.rc != 0
-  failed_when: vscode_extension.rc != 0
+  changed_when: '"was successfully installed" in vscode_extension.stdout'
+  failed_when:
+    - vscode_extension.rc != 0
+    - '"is already installed" not in vscode_extension.stdout'
   loop: "{{ vscode_extensions }}"
   loop_control:
     loop_var: extension
+
+- name: Copy the user settings (standalone)
+  ansible.builtin.copy:
+    src: settings.json
+    dest: "{{ vscode_user_config_directory }}/settings.json"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0640"
+    backup: true
+  when: '"WSL_DISTRO_NAME" not in ansible_env'

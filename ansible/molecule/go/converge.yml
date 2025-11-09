@@ -1,4 +1,4 @@
 - name: Converge
   hosts: molecule
   roles:
-    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}/roles/go"
+    - role: go

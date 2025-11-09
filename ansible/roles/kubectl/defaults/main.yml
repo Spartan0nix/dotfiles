@@ -1,2 +1,2 @@
 kubectl_shell_completion:
-  - bash
+  - zsh

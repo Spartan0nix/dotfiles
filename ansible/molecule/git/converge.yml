@@ -1,4 +1,13 @@
 - name: Converge
   hosts: molecule
+  vars:
+    git_email: test@example.com
+    git_username: test_user
+    git_platforms:
+      - name: gitlab
+        hostname: gitlab.com
+      - name: github
+        hostname: github.com
+    git_ssh_key_algorithm: ed25519
   roles:
-    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}/roles/git"
+    - git

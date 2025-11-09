@@ -1,28 +1,36 @@
 ---
-- name: Check the presence of the APT repo
+- name: Check the presence of the 'gpg' key
   ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/helm.list
-  register: helm_apt
+    path: /usr/share/keyrings/helm.asc
+  register: helm_gpg
 
-- name: Retrive the GPG key
+- name: Retrive the 'gpg' key
   ansible.builtin.get_url:
-    url: https://baltocdn.com/helm/signing.asc
+    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
     dest: /usr/share/keyrings/helm.asc
     owner: root
     group: root
     mode: "0644"
   become: true
-  when: not helm_apt.stat.exists
+  when: not helm_gpg.stat.exists
 
-- name: Add the APT repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [arch=amd64 signed-by=/usr/share/keyrings/helm.asc]
-      https://baltocdn.com/helm/stable/debian/
-      all
-      main
-    filename: helm
+- name: Add the 'apt' repository
+  ansible.builtin.deb822_repository:
+    name: helm
+    types: deb
+    architectures: amd64
+    signed_by: /usr/share/keyrings/helm.asc
+    uris: https://packages.buildkite.com/helm-linux/helm-debian/any/
+    suites: any
+    components: main
     state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: helm_apt_repo
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
     update_cache: true
   become: true
+  when: helm_apt_repo is changed

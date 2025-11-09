@@ -1,0 +1,81 @@
+{
+  // ---
+  "ansible.lightspeed.enabled": false,
+  "ansible.lightspeed.suggestions.enabled": false,
+  // ---
+  "breadcrumbs.enabled": false,
+  // ---
+  "chat.agent.enabled": false,
+  "chat.commandCenter.enabled": false,
+  // ---
+  "editor.codeLens": false,
+  "editor.cursorBlinking": "solid",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.fontFamily": "Cascadia Code",
+  "editor.fontLigatures": false,
+  "editor.formatOnSave": true,
+  "editor.multiCursorModifier": "ctrlCmd",
+  "editor.quickSuggestions": {
+    "other": "off"
+  },
+  "editor.renderWhitespace": "none",
+  "editor.snippetSuggestions": "top",
+  "editor.stickyScroll.enabled": false,
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "scope": "comment",
+        "settings": {
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
+  // ---
+  "explorer.compactFolders": false,
+  "explorer.confirmDragAndDrop": false,
+  // ---
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 10000,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  // ---
+  "git.autofetch": true,
+  "git.confirmSync": false,
+  "git.replaceTagsWhenPull": true,
+  "github.copilot.enable": {
+    "*": false
+  },
+  // ---
+  "material-icon-theme.hidesExplorerArrows": true,
+  // ---
+  "redhat.telemetry.enabled": false,
+  // ---
+  "scm.defaultViewMode": "tree",
+  // ---
+  "telemetry.feedback.enabled": false,
+  "telemetry.telemetryLevel": "off",
+  "terminal.integrated.fontFamily": "Cascadia Code",
+  // ---
+  "update.showReleaseNotes": false,
+  // ---
+  "window.zoomLevel": 1,
+  // ---
+  "workbench.activityBar.location": "top",
+  "workbench.colorTheme": "Dracula Theme",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.layoutControl.enabled": false,
+  "workbench.navigationControl.enabled": false,
+  "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "workbench.tree.enableStickyScroll": false,
+  "workbench.tree.indent": 12,
+  "workbench.tree.renderIndentGuides": "none",
+  // ---
+  "yaml.customTags": ["!reference sequence"],
+  // ---
+  "[python]": {
+    "editor.formatOnType": true
+  }
+}

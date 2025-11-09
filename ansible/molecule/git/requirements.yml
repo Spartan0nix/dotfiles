@@ -1,4 +1,1 @@
-collections:
-  - community.docker
-  - community.general
-  - community.crypto
+../_common/requirements.yml

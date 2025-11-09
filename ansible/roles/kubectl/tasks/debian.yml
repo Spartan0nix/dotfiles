@@ -1,34 +1,16 @@
 ---
 - name: Install requirements
-  ansible.builtin.package: # noqa: package-latest
+  ansible.builtin.package:
     name:
       - ca-certificates
-    state: latest
+    state: present
   become: true
-
-- name: Check the presence of the APT repo
-  ansible.builtin.stat:
-    path: /etc/apt/sources.list.d/kubernetes.list
-  register: kubernetes_apt
-
-- name: Remove the previous APT configuration
-  ansible.builtin.file:
-    path: "{{ file }}"
-    state: absent
-  loop_control:
-    loop_var: file
-  loop:
-    - /etc/apt/sources.list.d/kubernetes.list
-    - /usr/share/keyrings/kubernetes.asc
-    - /etc/apt/preferences.d/kubernetes
-  become: true
-  when: kubernetes_apt.stat.exists
 
 - name: Extract the short version format (X.Y)
   ansible.builtin.set_fact:
     kubernetes_short_version: "{{ kubernetes_latest_version.stdout | regex_replace('\\.[0-9]+$', '') }}"
 
-- name: Retrieve the GPG key
+- name: Retrieve the 'gpg' key
   ansible.builtin.get_url:
     url: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_short_version }}/deb/Release.key"
     dest: /usr/share/keyrings/kubernetes.asc
@@ -37,19 +19,26 @@
     mode: "0644"
   become: true
 
-- name: Add the APT repository
-  ansible.builtin.apt_repository:
-    repo: >
-      deb
-      [arch=amd64 signed-by=/usr/share/keyrings/kubernetes.asc]
-      https://pkgs.k8s.io/core:/stable:/{{ kubernetes_short_version }}/deb/
-      /
-    filename: kubernetes
-    state: present
-    update_cache: true
+- name: Remove the previous 'apt' sources
+  ansible.builtin.file:
+    path: "/etc/apt/sources.list.d/kubernetes.sources"
+    state: absent
   become: true
 
-- name: Copy the APT preference configuration
+- name: Add the 'apt' repository
+  ansible.builtin.deb822_repository:
+    name: helm
+    types: deb
+    signed_by: /usr/share/keyrings/kubernetes.asc
+    uris: "https://pkgs.k8s.io/core:/stable:/{{ kubernetes_short_version }}/deb/"
+    suites: "/"
+    state: present
+    mode: "0644"
+    enabled: true
+  become: true
+  register: kubectl_apt_repo
+
+- name: Copy the 'apt' preference configuration
   ansible.builtin.copy:
     src: apt-preference
     dest: /etc/apt/preferences.d/kubernetes
@@ -57,3 +46,9 @@
     group: root
     mode: "0644"
   become: true
+
+- name: Update 'apt' cache # noqa: no-handler
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: kubectl_apt_repo is changed

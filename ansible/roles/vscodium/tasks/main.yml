@@ -1,0 +1,30 @@
+---
+- name: Include tasks (archlinux)
+  ansible.builtin.include_tasks: archlinux.yml
+  when:
+    - ansible_os_family | lower == "archlinux"
+
+- name: Include tasks (debian)
+  ansible.builtin.include_tasks: debian.yml
+  when:
+    - ansible_os_family | lower == "debian"
+
+- name: Install extensions
+  ansible.builtin.command: codium --install-extension "{{ extension }}"
+  register: vscodium_extension
+  changed_when: '"was successfully installed" in vscodium_extension.stdout'
+  failed_when:
+    - vscodium_extension.rc != 0
+    - '"is already installed" not in vscodium_extension.stdout'
+  loop: "{{ vscodium_extensions }}"
+  loop_control:
+    loop_var: extension
+
+- name: Copy the user settings
+  ansible.builtin.copy:
+    src: settings.json
+    dest: "{{ ansible_user_dir }}/.config/VSCodium/User/settings.json"
+    owner: "{{ ansible_user_uid }}"
+    group: "{{ ansible_user_gid }}"
+    mode: "0640"
+    backup: true
